@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.mercury</groupId>
+    <artifactId>mercury</artifactId>
+    <version>0.1.0</version>
+    <packaging>jar</packaging>
+
+    <name>mercury</name>
+    <description>A lightweight kdb+/q IDE — self-contained HTTP server + browser UI</description>
+
+    <!--
+      This builds the lightweight DevServer distribution: a single runnable jar
+      (com.mercury.DevServer) with the built frontend embedded, and zero external
+      dependencies. Build the frontend first so its output is bundled:
+
+        cd frontend && npm ci && npm run build && cd ..
+        mvn -q package
+        java -jar target/mercury.jar
+
+      The scripts/build.* helpers do both steps for you and need only a JDK +
+      Node (no Maven). The legacy JCEF embedded-browser mode (MercuryApp /
+      MercuryBridge) is excluded from this build — it requires the JCEF native
+      libraries and is not part of the packaged app.
+    -->
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <finalName>mercury</finalName>
+        <sourceDirectory>java/src/main/java</sourceDirectory>
+
+        <!-- Embed the built frontend at /frontend inside the jar. -->
+        <resources>
+            <resource>
+                <directory>frontend/dist</directory>
+                <targetPath>frontend</targetPath>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <!-- JCEF-only sources; not part of the DevServer distribution. -->
+                    <excludes>
+                        <exclude>com/mercury/MercuryApp.java</exclude>
+                        <exclude>com/mercury/MercuryBridge.java</exclude>
+                        <exclude>com/mercury/TestHarness.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.mercury.DevServer</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

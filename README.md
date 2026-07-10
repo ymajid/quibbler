@@ -1,0 +1,127 @@
+# mercury — kdb+/q IDE
+
+A lightweight, fast desktop IDE for kdb+/q. A single self-contained server plus a
+Monaco-powered browser UI: multi-tab editing, q autocomplete, rich result tables,
+professional charts, a schema explorer, and query history.
+
+> Replace `CHANGE-ME` below with your GitHub `owner/repo` once you've pushed
+> (in this README, the release links, and `packaging/README.txt`).
+
+```
+┌─ Toolbar ───────────────────────────────────────────┐
+│ ☰  ● trading/prod › ProdDB     ▶ Run      mercury   │
+├─ Sidebar ───┬─ Editor ──────────────┬─ Results ─────┤
+│ [Conns]     │ select price, size    │ price   size   │
+│ [Schema]    │ from trades           │ 100.5    500   │
+│ [Files]     │ where date=.z.d       │ 101.2    250   │
+├─────────────┴───────────────────────┴───────────────┤
+│ 🟢 ProdDB | 1,234 rows | 42ms server 38ms net 2ms   │
+└─────────────────────────────────────────────────────┘
+```
+
+## Download & run (Windows)
+
+Grab the latest build from **[Releases](https://github.com/CHANGE-ME/mercury/releases/latest)** — two options:
+
+| Download | Size | Needs Java? | How to start |
+|---|---|---|---|
+| **`mercury-win-*.zip`** — bundled Java | ~80 MB | No — Java is included | Unzip → double-click **`mercury.exe`** |
+| **`mercury-*.zip`** — just the app | ~3 MB | Yes, [Java 17+](https://adoptium.net/temurin/releases/?version=17) | Unzip → double-click **`start-mercury.bat`** |
+
+Either way: a window opens, click **+ New Connection**, enter your kdb+ `host:port`,
+then type a q expression and press **Ctrl+Enter**.
+
+- Google Chrome gives the cleanest window (app mode); any browser works — it falls
+  back to your default automatically.
+- Different port: `start-mercury.bat 9000`. Skip auto-opening a browser: set
+  `MERCURY_NO_BROWSER=1`.
+- macOS / Linux: run `./start-mercury.sh` from the small (`mercury-*.zip`) download.
+
+mercury is a **client** — point it at your own running q process, e.g. `q -p 5000`.
+Connections and history are saved under `~/.mercury` (`%USERPROFILE%\.mercury` on Windows).
+
+## Features
+
+- **Editor** — Monaco with q syntax highlighting, multi-tab editing, ~200 static
+  completions plus live workspace-aware completions (tables, columns, functions).
+- **Execution** — `Ctrl+Enter` runs the selection or current line; async so the UI
+  stays responsive, with Cancel and an optional query timeout. Timing breaks down
+  server / network / render.
+- **Results** — sortable, resizable, filterable tables (virtual-scrolled to 50k
+  rows), keyed tables, dicts, lists, and drill-into nested values. CSV / copy-all.
+- **Charts** — line, bar, scatter, area, candlestick, heatmap, pie on a validated,
+  colorblind-safe palette. Hold-drag or pinch to zoom, click a series to isolate,
+  crowded axes auto-rotate/downsample, and **pop a chart into its own window**.
+- **Connections** — groups/folders, TLS, fast dead-host detection, and a `Ctrl+P`
+  palette with live green/red status dots.
+- **Schema explorer** — tables → columns with types; search by table, column, or
+  datatype.
+- **Session restore** — reopens exactly as you left it: same tabs (including
+  unsaved edits), connection, panels, and layout.
+- **Themes** — warm light and VS Code-style dark, applied everywhere.
+
+### Keyboard shortcuts
+
+| Shortcut | Action | Shortcut | Action |
+|---|---|---|---|
+| `Ctrl+Enter` | Run query | `Ctrl+P` | Switch connection / tab |
+| `Ctrl+N` | New tab | `Ctrl+W` | Close tab |
+| `Ctrl+S` | Save | `Ctrl+1..4` | Result / Chart / Console / History |
+| `Ctrl+J` | Auto-size columns | `Ctrl+/` or `?` | Shortcuts help |
+
+## Build from source
+
+You need **JDK 17+** and **Node 18+** on your PATH. The build produces one
+self-contained `dist/mercury.jar` (frontend embedded, zero runtime dependencies).
+
+```bash
+# Windows
+scripts\build.bat          # or: powershell -ExecutionPolicy Bypass -File scripts\build.ps1
+scripts\run.bat            # build if needed, then launch
+
+# macOS / Linux
+scripts/build.sh
+scripts/run.sh
+```
+
+Prefer Maven? `cd frontend && npm run build && cd .. && mvn -q package` produces
+`target/mercury.jar`. Run any of them with `java -jar <path-to>.jar`.
+
+Frontend-only dev with hot reload: `cd frontend && npm run dev`.
+
+### Releases
+
+Pushing a tag builds and publishes both downloads automatically
+(`.github/workflows/release.yml`):
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+## Architecture
+
+```
+Browser (Chrome --app or default)
+  └─ mercury.jar  (Java, com.mercury.DevServer, ~1 file HTTP server)
+      ├─ Static UI served from the jar (Vite-built Preact app)
+      ├─ REST API (/api/query, /api/connections, /api/workspace, …)
+      └─ com.kx.c  IPC → your kdb+ process
+```
+
+- **Frontend** — Preact + signals, Monaco Editor, ECharts, split.js (`frontend/`).
+- **Backend** — Java 17, `com.sun.net.httpserver`, `c.java` for kdb+ IPC. No
+  external Java dependencies; no Electron, no LSP server.
+- A legacy JCEF embedded-browser mode (`MercuryApp`) exists but is not part of the
+  packaged build.
+
+## Contributing / notes
+
+- CI builds the frontend, the jar, runs the chart render test, and smoke-tests the
+  server on every push (`.github/workflows/ci.yml`).
+- Developer docs and gotchas live in `CLAUDE.md` and `frontend/CLAUDE.md`.
+
+## License
+
+MIT — see [`LICENSE`](LICENSE). Bundles `com.kx.c.java` (© Kx Systems, Apache-2.0)
+and other third-party components; see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).

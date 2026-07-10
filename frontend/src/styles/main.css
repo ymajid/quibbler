@@ -1,0 +1,128 @@
+/* mercury — VS Code-like dark theme */
+
+:root {
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #2d2d2d;
+  --border: #3c3c3c;
+  --text-primary: #d4d4d4;
+  --text-secondary: #888;
+  --text-muted: #666;
+  --accent: #007acc;
+  --accent-hover: #1a8ad4;
+  --error: #f44747;
+  --success: #4ec9b0;
+  --warning: #cca700;
+}
+
+/* ---- Global resets ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  height: 100%;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--bg-primary);
+}
+
+/* ---- Split.js gutters ---- */
+.gutter {
+  background: var(--bg-secondary);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transition: background 0.1s;
+}
+
+.gutter:hover {
+  background-color: #007acc;
+}
+
+.gutter.gutter-horizontal {
+  cursor: col-resize;
+}
+
+.gutter.gutter-vertical {
+  cursor: row-resize;
+}
+
+/* ---- Buttons ---- */
+button {
+  font-family: inherit;
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ---- Inputs ---- */
+input, select {
+  font-family: inherit;
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-color: var(--accent) !important;
+}
+
+/* ---- Links ---- */
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+/* ---- Table selection ---- */
+::selection {
+  background: #264f78;
+  color: inherit;
+}
+
+/* ---- Context menu styling ---- */
+.monaco-menu {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border) !important;
+}

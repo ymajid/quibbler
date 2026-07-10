@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+                 connect-src *;
+                 font-src 'self' data:;
+                 img-src 'self' data:;" />
+  <title>mercury</title>
+  <style>
+    /* ---- Theme: Light (default) — warm, premium, refined ---- */
+    :root {
+      --bg:             #faf8f5;
+      --bg-panel:       #f1eeea;
+      --bg-toolbar:     #f4f2ef;
+      --bg-input:       #e9e6e1;
+      --bg-hover:       #e7e2d8;
+      --bg-row-alt:     #f5f3ef;
+      --bg-keycol:      #ede5d6;
+      --bg-overlay:     rgba(250,248,245,0.85);
+
+      --text:           #1a1714;
+      --text-secondary: #6e6860;
+      --text-bright:    #0d0b09;
+      --text-dim:       #a0988c;
+      --text-white:     #ffffff;
+
+      --border:         #e0dbd2;
+      --border-strong:  #d0c9bd;
+      --border-subtle:  #ede9e3;
+
+      --accent:         #b8860b;
+      --accent-btn:     #9a7209;
+      --accent-border:  #c9a34e;
+
+      --status-error:   #c41e3a;
+      --status-warn:    #b85c00;
+      --status-ok:      #2d7d46;
+
+      --syntax-teal:    #0d7377;
+      --syntax-string:  #a31515;
+      --syntax-number:  #098658;
+      --syntax-blue:    #0645ad;
+      --syntax-ltblue:  #1a6d8a;
+      --syntax-yellow:  #7a5a20;
+      --syntax-purple:  #7b2d8e;
+
+      --keycol-border:  #d4c8b0;
+      --keycol-text:    #6b5530;
+      --keycol-dim:     #a09580;
+
+      --gutter-dot:     #bbb5a8;
+      --gutter-bg:      #e9e6e1;
+      --gutter-hover:   #b8860b;
+
+      --shadow:         0 1px 4px rgba(0,0,0,0.06), 0 2px 12px rgba(0,0,0,0.04);
+    }
+
+    /* ---- Theme: Dark ---- */
+    [data-theme="dark"] {
+      --bg:             #1e1e1e;
+      --bg-panel:       #2d2d2d;
+      --bg-toolbar:     #252526;
+      --bg-input:       #3c3c3c;
+      --bg-hover:       #37373d;
+      --bg-row-alt:     #222222;
+      --bg-keycol:      #1e2d3a;
+      --bg-overlay:     rgba(0,0,0,0.5);
+
+      --text:           #d4d4d4;
+      --text-secondary: #888888;
+      --text-bright:    #cccccc;
+      --text-dim:       #666666;
+      --text-white:     #ffffff;
+
+      --border:         #3c3c3c;
+      --border-strong:  #555555;
+      --border-subtle:  #333333;
+
+      --accent:         #007acc;
+      --accent-btn:     #0e639c;
+      --accent-border:  #007acc;
+
+      --status-error:   #f44747;
+      --status-warn:    #f0ad4e;
+      --status-ok:      #4ec9b0;
+
+      --syntax-teal:    #4ec9b0;
+      --syntax-string:  #ce9178;
+      --syntax-number:  #b5cea8;
+      --syntax-blue:    #569cd6;
+      --syntax-ltblue:  #9cdcfe;
+      --syntax-yellow:  #dcdcaa;
+      --syntax-purple:  #c586c0;
+
+      --keycol-border:  #2a5568;
+      --keycol-text:    #7ec8e3;
+      --keycol-dim:     #5a90a8;
+
+      --gutter-dot:     #555;
+      --gutter-bg:      #2d2d2d;
+      --gutter-hover:   #007acc;
+
+      --shadow:         0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* ---- Base ---- */
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      height: 100%;
+    }
+    #app { height: 100%; }
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      height: 100%; font-size: 14px; color: var(--text-secondary);
+    }
+
+    /* ---- Monaco overrides ---- */
+    .monaco-editor .margin,
+    .monaco-editor .monaco-editor-background {
+      background: var(--bg) !important;
+    }
+
+    /* ---- split.js gutters ---- */
+    .gutter {
+      background: var(--gutter-bg);
+      background-repeat: no-repeat;
+      background-position: 50%;
+      transition: background 0.15s;
+    }
+    .gutter:hover { background: var(--gutter-hover); }
+    .gutter-vertical   { cursor: row-resize; }
+    .gutter-horizontal { cursor: col-resize; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="loading">mercury — loading...</div>
+  </div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

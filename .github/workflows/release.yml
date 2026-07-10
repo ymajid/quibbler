@@ -1,0 +1,112 @@
+name: Release
+
+# Tag a commit to publish a release:  git tag v0.1.0 && git push --tags
+# Or run manually (builds artifacts without publishing a release).
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version (e.g. 0.1.0)
+        required: true
+        default: '0.1.0'
+
+permissions:
+  contents: write
+
+jobs:
+  # --- Small JAR + launcher (needs Java 17 on the user's machine) ---
+  jar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Resolve version
+        id: v
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            V="${{ github.event.inputs.version }}"
+          else
+            V="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        run: bash scripts/build.sh
+
+      - name: Stage bundle
+        run: |
+          V="${{ steps.v.outputs.version }}"
+          DIR="mercury-$V"
+          mkdir -p "stage/$DIR"
+          cp dist/mercury.jar "stage/$DIR/mercury.jar"
+          cp packaging/start-mercury.bat packaging/start-mercury.sh packaging/README.txt "stage/$DIR/"
+          chmod +x "stage/$DIR/start-mercury.sh"
+          (cd stage && zip -r "../mercury-$V.zip" "$DIR")
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jar-zip
+          path: mercury-*.zip
+
+  # --- Self-contained Windows app image (bundles Java — nothing to install) ---
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Resolve version
+        id: v
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            V="${{ github.event.inputs.version }}"
+          else
+            V="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+
+      - name: Build jar
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts\build.ps1
+
+      - name: jpackage (bundled-runtime app image)
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts\package-windows.ps1 -Version ${{ steps.v.outputs.version }}
+
+      - name: Zip app image
+        shell: pwsh
+        run: Compress-Archive -Path dist/win/mercury -DestinationPath "mercury-win-${{ steps.v.outputs.version }}.zip" -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: win-zip
+          path: mercury-win-*.zip
+
+  # --- Publish a GitHub Release with both downloads (tag pushes only) ---
+  release:
+    needs: [ jar, windows ]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - run: find artifacts -type f
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*.zip
+          generate_release_notes: true

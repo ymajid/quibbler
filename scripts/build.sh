@@ -5,8 +5,17 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-command -v node  >/dev/null || { echo "Node 18+ is required (https://nodejs.org)"; exit 1; }
-command -v javac >/dev/null || { echo "A JDK 17+ is required (https://adoptium.net)"; exit 1; }
+command -v node >/dev/null 2>&1 || { echo "Node 18+ is required — https://nodejs.org"; exit 1; }
+# Note: macOS ships stub java/javac that "exist" but error until a JDK is
+# installed, so probe that javac actually runs rather than just that it's on PATH.
+if ! javac -version >/dev/null 2>&1; then
+  echo "A working JDK 17+ was not found."
+  echo "  (On macOS, java/javac can be stubs printing 'Unable to locate a Java Runtime'.)"
+  echo "  Install one, then run this again:"
+  echo "    macOS:          brew install --cask temurin      (or https://adoptium.net)"
+  echo "    Windows/Linux:  https://adoptium.net/temurin/releases/?version=17"
+  exit 1
+fi
 
 echo "==> Building frontend"
 (

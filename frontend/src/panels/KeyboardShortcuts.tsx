@@ -11,6 +11,8 @@ const shortcuts: ShortcutEntry[] = [
   { keys: 'Ctrl+N', action: 'New tab' },
   { keys: 'Ctrl+W', action: 'Close tab' },
   { keys: 'Ctrl+S', action: 'Save file' },
+  { keys: 'Ctrl+Shift+A', action: 'Align selection on delimiter' },
+  { keys: 'Ctrl+L', action: 'Toggle word wrap' },
   { keys: 'Ctrl+1', action: 'Switch to Result tab' },
   { keys: 'Ctrl+2', action: 'Switch to Chart tab' },
   { keys: 'Ctrl+3', action: 'Switch to Console tab' },

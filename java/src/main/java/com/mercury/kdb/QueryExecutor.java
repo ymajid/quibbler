@@ -175,6 +175,15 @@ public class QueryExecutor {
         return s.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
+    /** Run a k() query, returning null on any failure instead of throwing. */
+    private static Object safeK(Object c, String query) {
+        try {
+            return c.getClass().getMethod("k", String.class).invoke(c, query);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     /**
      * Query the connected kdb+ process for workspace context (tables, columns,
      * functions, variables) to power autocomplete.
@@ -188,16 +197,14 @@ public class QueryExecutor {
         }
 
         try {
-            // Fetch tables + columns
-            Object tableDict = c.getClass().getMethod("k", String.class)
-                    .invoke(c, "tables[]!cols each tables[]");
-            // Fetch column types: dict of table name → type char list
-            Object typeDict = c.getClass().getMethod("k", String.class)
-                    .invoke(c, "{x!exec t from meta x} each x: tables[]");
-            Object funcs = c.getClass().getMethod("k", String.class)
-                    .invoke(c, "system \"f\"");
-            Object vars = c.getClass().getMethod("k", String.class)
-                    .invoke(c, "system \"v\"");
+            // Each sub-query runs independently: if one fails (e.g. the type
+            // lookup on an odd q build), we still return the tables/columns the
+            // others produced instead of blanking the whole schema explorer.
+            Object tableDict = safeK(c, "tables[]!cols each tables[]");
+            // dict of table name → char vector of column types (in column order)
+            Object typeDict = safeK(c, "tables[]!{exec t from meta x} each tables[]");
+            Object funcs = safeK(c, "system \"f\"");
+            Object vars = safeK(c, "system \"v\"");
 
             Map<String, Object> result = new LinkedHashMap<>();
 

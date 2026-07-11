@@ -412,12 +412,18 @@ public class TypeMapper {
 
     private Map<String, Object> walkArray(Object arr) {
         int len = Array.getLength(arr);
+        // A String[] from c.java is a symbol vector (char vectors arrive as char[]),
+        // so tag each element as a symbol atom — otherwise the list would render
+        // without backticks (`a`b`c shown as "a b c").
+        boolean isSymbolVector = arr instanceof String[];
         List<Object> items = new ArrayList<>(len);
         for (int i = 0; i < len; i++) {
             try {
                 Object elem = Array.get(arr, i);
                 if (elem == null) {
                     items.add(null);
+                } else if (isSymbolVector) {
+                    items.add(symbolAtom((String) elem));
                 } else if (isScalar(elem)) {
                     items.add(walkScalar(elem));
                 } else {
@@ -516,6 +522,15 @@ public class TypeMapper {
                obj instanceof Date ||
                obj instanceof UUID ||
                obj == null;
+    }
+
+    /** A symbol atom node: {type:'atom', v:'a', vt:'symbol'} — renders as `a. */
+    private static Map<String, Object> symbolAtom(String s) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("type", "atom");
+        m.put("v", s);
+        m.put("vt", "symbol");
+        return m;
     }
 
     /**

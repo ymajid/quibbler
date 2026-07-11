@@ -41,7 +41,6 @@ export function ChartPanel({ data, config, needsRender, onUpdateConfig, onRender
   const chartRef = useRef<HTMLDivElement>(null);
   const instanceRef = useRef<ECharts | null>(null);
   const [rendered, setRendered] = useState(false);
-  const [saveUrl, setSaveUrl] = useState<string | null>(null);
 
   // Init chart instance — re-create when theme changes
   useEffect(() => {
@@ -163,11 +162,6 @@ export function ChartPanel({ data, config, needsRender, onUpdateConfig, onRender
     a.click();
   };
 
-  const handleViewFull = () => {
-    const url = getDataUrl();
-    if (url) setSaveUrl(url);
-  };
-
   const handleOpenInTab = () => {
     const dataUrl = getDataUrl();
     if (!dataUrl) return;
@@ -186,24 +180,6 @@ export function ChartPanel({ data, config, needsRender, onUpdateConfig, onRender
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      {/* Fullscreen overlay */}
-      {saveUrl && (
-        <div onClick={() => setSaveUrl(null)}
-          style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 2000,
-            background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer',
-          }}>
-          <img src={saveUrl} style={{ maxWidth: '95vw', maxHeight: '95vh', objectFit: 'contain' }}
-            onClick={e => e.stopPropagation()} />
-          <div style={{ position: 'absolute', top: '12px', right: '16px', color: 'var(--text-bright)', fontSize: '24px', cursor: 'pointer' }}
-            onClick={() => setSaveUrl(null)}>✕</div>
-          <div style={{ position: 'absolute', bottom: '12px', color: 'var(--text-secondary)', fontSize: '12px' }}>
-            Right-click → Save Image to download · Click outside to close
-          </div>
-        </div>
-      )}
-
       {/* Controls */}
       <div style={{
         display: 'flex', gap: '4px', padding: '3px 8px', background: 'var(--bg-panel)',
@@ -297,10 +273,6 @@ export function ChartPanel({ data, config, needsRender, onUpdateConfig, onRender
               title="Reset view — re-render with the current axes/group and zoom out"
               style={{ ...btnStyle, background: 'var(--bg-input)', color: 'var(--text-bright)' }}>
               ↺ Reset
-            </button>
-            <button onClick={handleViewFull} title="View full-size"
-              style={{ ...btnStyle, background: 'var(--bg-input)', color: 'var(--text-bright)' }}>
-              🔍 View
             </button>
           </>
         )}

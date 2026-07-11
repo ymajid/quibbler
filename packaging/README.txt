@@ -28,4 +28,4 @@ KEYBOARD
   Ctrl+N      new tab            Ctrl+S  save file
   Ctrl+1..4   result / chart / console / history
 
-Project & source: https://github.com/CHANGE-ME/mercury
+Project & source: https://github.com/ymajid/mercury

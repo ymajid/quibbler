@@ -2,10 +2,8 @@
 
 A lightweight, fast desktop IDE for kdb+/q. A single self-contained server plus a
 Monaco-powered browser UI: multi-tab editing, q autocomplete, rich result tables,
-professional charts, a schema explorer, and query history.
-
-> Replace `CHANGE-ME` below with your GitHub `owner/repo` once you've pushed
-> (in this README, the release links, and `packaging/README.txt`).
+professional charts, a schema explorer, and query history. One ~3 MB jar (or a
+no-Java Windows bundle) — no Electron, no install.
 
 ```
 ┌─ Toolbar ───────────────────────────────────────────┐
@@ -21,7 +19,7 @@ professional charts, a schema explorer, and query history.
 
 ## Download & run (Windows)
 
-Grab the latest build from **[Releases](https://github.com/CHANGE-ME/mercury/releases/latest)** — two options:
+Grab the latest build from **[Releases](https://github.com/ymajid/mercury/releases/latest)** — two options:
 
 | Download | Size | Needs Java? | How to start |
 |---|---|---|---|
@@ -43,15 +41,18 @@ Connections and history are saved under `~/.mercury` (`%USERPROFILE%\.mercury` o
 ## Features
 
 - **Editor** — Monaco with q syntax highlighting, multi-tab editing, ~200 static
-  completions plus live workspace-aware completions (tables, columns, functions).
+  completions plus live workspace-aware completions (tables, columns, functions)
+  and words from the current file. **Align on a delimiter** (Ctrl+Shift+A).
 - **Execution** — `Ctrl+Enter` runs the selection or current line; async so the UI
-  stays responsive, with Cancel and an optional query timeout. Timing breaks down
-  server / network / render.
+  stays responsive, with Cancel and an optional (off by default) query timeout.
+  Timing breaks down server / network / render.
 - **Results** — sortable, resizable, filterable tables (virtual-scrolled to 50k
-  rows), keyed tables, dicts, lists, and drill-into nested values. CSV / copy-all.
+  rows), keyed tables, dicts, lists, and drill-into nested values. Symbols carry
+  backticks for copy/paste; CSV / copy-all; **scroll back through recent results**.
 - **Charts** — line, bar, scatter, area, candlestick, heatmap, pie on a validated,
   colorblind-safe palette. Hold-drag or pinch to zoom, click a series to isolate,
-  crowded axes auto-rotate/downsample, and **pop a chart into its own window**.
+  crowded axes auto-rotate/downsample, and **pop a chart into its own OS window**
+  (frozen to that result, unaffected by later queries).
 - **Connections** — groups/folders, TLS, fast dead-host detection, and a `Ctrl+P`
   palette with live green/red status dots.
 - **Schema explorer** — tables → columns with types; search by table, column, or
@@ -66,8 +67,8 @@ Connections and history are saved under `~/.mercury` (`%USERPROFILE%\.mercury` o
 |---|---|---|---|
 | `Ctrl+Enter` | Run query | `Ctrl+P` | Switch connection / tab |
 | `Ctrl+N` | New tab | `Ctrl+W` | Close tab |
-| `Ctrl+S` | Save | `Ctrl+1..4` | Result / Chart / Console / History |
-| `Ctrl+J` | Auto-size columns | `Ctrl+/` or `?` | Shortcuts help |
+| `Ctrl+S` | Save | `Ctrl+Shift+A` | Align selection on delimiter |
+| `Ctrl+1..4` | Result / Chart / Console / History | `Ctrl+/` or `?` | Shortcuts help |
 
 ## Build from source
 

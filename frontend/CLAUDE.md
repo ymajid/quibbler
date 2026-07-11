@@ -16,8 +16,11 @@ npm run dev                         # vite dev server on :8090-ish (needs backen
 `src/store.ts` is the single source of truth — every piece of UI state is a
 `signal`/`computed`. Components read `.value` in render (auto-subscribes) and
 write `.value` to update. Key groups: connections + `connectionStatuses`, editor
-tabs, chart configs, `poppedCharts`, and UI state (theme, sidebar, result tab,
-`layoutSizes`).
+tabs, chart configs, `poppedCharts`, `resultHistory` (scroll-back), `cursorInfo`,
+`alignDialog`, and UI state (theme, sidebar, result tab, `layoutSizes`).
+
+Dialogs are signal-driven and mounted once in `App.tsx` (`AlignDialog`,
+`ConnectionPalette`, `SaveDialog`, `PoppedCharts`, …).
 
 ### Session persistence (`persistSession`/`restoreSession`)
 
@@ -83,7 +86,29 @@ anything a rule doesn't claim renders as the error color.
 
 ## Bridge (`bridge.ts`)
 
-REST calls use **synchronous** XHR for simplicity, EXCEPT `queryAsync` and
-`testConnectionAsync`, which are async so long/dead operations don't freeze the
-UI. Probe many connections with `refreshConnectionStatuses()` (non-blocking);
-never loop `testConnection` (sync, 2s per dead host) on the UI thread.
+REST calls use **synchronous** XHR for simplicity, EXCEPT `queryAsync`,
+`testConnectionAsync`, and `getWorkspaceAsync`, which are async so long/dead
+operations don't freeze the UI. Probe many connections with
+`refreshConnectionStatuses()` (non-blocking); never loop `testConnection` (sync,
+2s per dead host) on the UI thread. Schema/autocomplete refresh must use
+`getWorkspaceAsync` (guarded by re-checking `activeConnectionId`) — the sync
+`getWorkspace` blocked the UI after every query.
+
+## Performance & weight — don't regress these
+
+- **Monaco is imported from `monaco-editor/esm/vs/editor/editor.api`**, NOT the
+  full `monaco-editor` package. The full package pulls every basic-language
+  (abap/sql/…) and the json/ts/css/html language services we never use (~1 MB +
+  13 chunks). We only register a custom `q` Monarch grammar. Keep it on the API
+  entry.
+- **`TableRenderer` memoizes filter+sort** (`useMemo`), because it re-renders on
+  every scroll frame (scrollTop) — recomputing over 50k rows each time would jank
+  scrolling. It also returns the same array (no copy) when unfiltered/unsorted.
+- **The chart is lazy-mounted** (`ResultPanel`): nothing is created until the
+  Chart tab is first opened, then it stays mounted so config+zoom persist. The
+  wheel/pinch handler uses cached refs (`zoomRef`/`xLenRef`/`hasZoomRef`), never
+  `getOption()` (a deep clone of series data) on the hot path.
+- **`persistSession` is debounced 400 ms** in `App.tsx` (`editorTabs` changes on
+  every keystroke); `beforeunload` flushes it.
+- **Result history holds references to full result objects** — keep
+  `MAX_RESULT_HISTORY` modest (15).

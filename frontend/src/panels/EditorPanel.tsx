@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'preact/hooks';
-import * as monaco from 'monaco-editor';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { createEditor, getEditorTheme } from '../editor/setup';
 import { setEditorRef } from './Toolbar';
 import {
@@ -392,14 +392,10 @@ export function EditorPanel() {
       setWorkspaceContext(null);
       return;
     }
-    try {
-      const ctx = bridge.getWorkspace(connId);
-      if (ctx && ctx.tables) {
-        setWorkspaceContext(ctx);
-      }
-    } catch {
-      setWorkspaceContext(null);
-    }
+    // Async so autocomplete context refresh doesn't block the editor.
+    bridge.getWorkspaceAsync(connId)
+      .then(ctx => { if (activeConnectionId.value === connId && ctx && ctx.tables) setWorkspaceContext(ctx); })
+      .catch(() => { if (activeConnectionId.value === connId) setWorkspaceContext(null); });
   };
 
   // Refresh on connection change

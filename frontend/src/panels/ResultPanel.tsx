@@ -1,4 +1,4 @@
-import { useEffect } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import { resultPanelTab, queryResult, queryRunning, queryId, chartConfig, chartConfigs, chartNeedsRender, resultHistory, resultHistoryIndex, showResultAt } from '../store';
 import { TableRenderer } from '../renderers/TableRenderer';
 import { DictRenderer } from '../renderers/DictRenderer';
@@ -13,6 +13,12 @@ export function ResultPanel() {
   const tab = resultPanelTab.value;
   const result = queryResult.value;
   const running = queryRunning.value;
+
+  // Lazy-mount the chart: don't create the ECharts instance (or render per query)
+  // until the user first opens the Chart tab — then keep it mounted so config +
+  // zoom survive tab switches. Non-charting users pay nothing.
+  const [chartMounted, setChartMounted] = useState(false);
+  useEffect(() => { if (tab === 'chart') setChartMounted(true); }, [tab]);
 
   // Listen for Ctrl+1/2/3/4 at document level to switch result panel tabs
   useEffect(() => {
@@ -49,11 +55,13 @@ export function ResultPanel() {
       </div>
       <div style={{ flex: 1, overflow: 'auto' }}>
         {tab === 'result' && <ResultContent result={result} running={running} />}
-        {/* Chart stays mounted (hidden) so its axes/group config AND zoom survive
-            switching result tabs — no reconfigure, no re-render flash. */}
-        <div style={{ display: tab === 'chart' ? 'block' : 'none', height: '100%' }}>
-          <ChartPanelWrapper result={result} />
-        </div>
+        {/* Once opened, the chart stays mounted (hidden) so its axes/group config
+            AND zoom survive switching result tabs — no reconfigure, no re-render. */}
+        {chartMounted && (
+          <div style={{ display: tab === 'chart' ? 'block' : 'none', height: '100%' }}>
+            <ChartPanelWrapper result={result} />
+          </div>
+        )}
         {tab === 'console' && <ConsolePanel />}
         {tab === 'history' && <HistoryPanel />}
       </div>

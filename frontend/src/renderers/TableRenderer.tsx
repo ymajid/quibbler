@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'preact/hooks';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'preact/hooks';
 import type { TableResult } from '../bridge';
 import { DictRenderer } from './DictRenderer';
 import { ListRenderer } from './ListRenderer';
@@ -52,18 +52,24 @@ export function TableRenderer({ result }: Props) {
     });
   };
 
-  // Apply all active filters (AND logic)
-  const activeFilters = Object.entries(filters).filter(([, v]) => v.trim());
-  let filteredRows = [...rows];
-  for (const [colStr, q] of activeFilters) {
-    const colIdx = parseInt(colStr);
-    const lower = q.toLowerCase();
-    filteredRows = filteredRows.filter(row => {
-      const val = row[colIdx];
-      if (val === null || val === undefined) return lower === '::' || lower === '';
-      return formatKdbInline(val).toLowerCase().includes(lower);
-    });
-  }
+  // Apply all active filters (AND logic). Memoized so scrolling — which only
+  // changes scrollTop — never re-runs the filter over every row.
+  const hasActiveFilters = Object.values(filters).some(v => v.trim());
+  const filteredRows = useMemo(() => {
+    const active = Object.entries(filters).filter(([, v]) => v.trim());
+    if (active.length === 0) return rows;   // no copy in the common case
+    let out = rows;
+    for (const [colStr, q] of active) {
+      const colIdx = parseInt(colStr);
+      const lower = q.toLowerCase();
+      out = out.filter(row => {
+        const val = row[colIdx];
+        if (val === null || val === undefined) return lower === '::' || lower === '';
+        return formatKdbInline(val).toLowerCase().includes(lower);
+      });
+    }
+    return out;
+  }, [rows, filters]);
 
   // ---- Column resize ----
   const resizing = useRef<{ col: number; startX: number; startWidth: number } | null>(null);
@@ -94,19 +100,21 @@ export function TableRenderer({ result }: Props) {
     };
   }, []);
 
-  // ---- Row limit ----
+  // ---- Row limit + sorting (memoized: independent of scroll position) ----
   const truncated = filteredRows.length > MAX_ROWS;
-  // ---- Sorting ----
-  let sortedRows = truncated ? filteredRows.slice(0, MAX_ROWS) : [...filteredRows];
-  if (sortCol !== null) {
-    sortedRows.sort((a, b) => {
+  const sortedRows = useMemo(() => {
+    const base = truncated ? filteredRows.slice(0, MAX_ROWS) : filteredRows;
+    if (sortCol === null) return base;   // no copy/sort when unsorted
+    const arr = base.slice();
+    arr.sort((a, b) => {
       const av = a[sortCol], bv = b[sortCol];
       if (av === null || av === undefined) return 1;
       if (bv === null || bv === undefined) return -1;
       if (typeof av === 'number' && typeof bv === 'number') return sortAsc ? av - bv : bv - av;
       return sortAsc ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
     });
-  }
+    return arr;
+  }, [filteredRows, sortCol, sortAsc, truncated]);
 
   const hasManualWidths = Object.keys(colWidths).length > 0;
 
@@ -149,7 +157,7 @@ export function TableRenderer({ result }: Props) {
         <span>
           {truncated
             ? `Showing ${MAX_ROWS.toLocaleString()} of ${filteredRows.length.toLocaleString()} matches`
-            : activeFilters.length > 0
+            : hasActiveFilters
               ? `${filteredRows.length.toLocaleString()} of ${rowCount.toLocaleString()} rows`
               : `${rowCount.toLocaleString()} rows × ${columns.length} columns`}
         </span>

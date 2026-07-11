@@ -217,6 +217,23 @@ export function getWorkspace(connId: string): WorkspaceContext {
   return JSON.parse(syncGet('/api/workspace?connId=' + encodeURIComponent(connId)));
 }
 
+/** Async workspace fetch — used for schema/autocomplete refresh so it never
+ *  blocks the UI thread (the sync version is kept for the JCEF bridge path). */
+export function getWorkspaceAsync(connId: string): Promise<WorkspaceContext> {
+  return new Promise((resolve, reject) => {
+    if (!useHttp) {
+      try { resolve(JSON.parse(window.mercury!.getWorkspace(connId))); }
+      catch (e: any) { reject(e); }
+      return;
+    }
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', BASE + '/api/workspace?connId=' + encodeURIComponent(connId), true);
+    xhr.onload = () => { try { resolve(JSON.parse(xhr.responseText)); } catch { reject(new Error('parse error')); } };
+    xhr.onerror = () => reject(new Error('network error'));
+    xhr.send();
+  });
+}
+
 export interface WorkspaceContext {
   tables: Record<string, Array<{ name: string; type: string }>>;
   functions: string[];

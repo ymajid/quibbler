@@ -7,7 +7,7 @@
  * Monarch docs: https://microsoft.github.io/monaco-editor/monarch.html
  */
 
-import type { languages } from 'monaco-editor';
+import type { languages } from 'monaco-editor/esm/vs/editor/editor.api';
 
 export const qLanguage: languages.IMonarchLanguage = {
   // Token categories used (mapped to VS Code theme scopes):

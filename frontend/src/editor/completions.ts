@@ -6,8 +6,8 @@
  * fetched from the connected kdb+ process.
  */
 
-import * as monaco from 'monaco-editor';
-import type { languages } from 'monaco-editor';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import type { languages } from 'monaco-editor/esm/vs/editor/editor.api';
 
 // ---- kdb workspace context (populated from backend) ----
 

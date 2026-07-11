@@ -37,15 +37,19 @@ export function SchemaPanel() {
   const refresh = () => {
     const connId = activeConnectionId.value;
     if (!connId) { setSchema(null); return; }
-    try {
-      const ctx = bridge.getWorkspace(connId);
-      const rawTables = (ctx?.tables ?? {}) as Record<string, unknown>;
-      const tables: Record<string, SchemaCol[]> = {};
-      for (const name of Object.keys(rawTables)) {
-        tables[name] = normalizeColumns(rawTables[name]);
-      }
-      setSchema({ tables });
-    } catch { setSchema(null); }
+    // Async so a large workspace refresh never freezes the UI; ignore the reply
+    // if the active connection changed while it was in flight.
+    bridge.getWorkspaceAsync(connId)
+      .then(ctx => {
+        if (activeConnectionId.value !== connId) return;
+        const rawTables = (ctx?.tables ?? {}) as Record<string, unknown>;
+        const tables: Record<string, SchemaCol[]> = {};
+        for (const name of Object.keys(rawTables)) {
+          tables[name] = normalizeColumns(rawTables[name]);
+        }
+        setSchema({ tables });
+      })
+      .catch(() => { if (activeConnectionId.value === connId) setSchema(null); });
   };
 
   useEffect(() => { refresh(); }, [activeConnectionId.value]);

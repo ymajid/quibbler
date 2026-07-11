@@ -58,6 +58,9 @@ export function App() {
 
   // Persist the full session whenever any captured piece of state changes,
   // so the workspace reopens exactly as it closed.
+  // Debounced: editorTabs changes on every keystroke, so writing the whole
+  // session to localStorage synchronously each time would make typing janky in
+  // large files. Coalesce to 400ms after the last change; beforeunload flushes.
   useSignalEffect(() => {
     void editorTabs.value;
     void activeEditorTabPath.value;
@@ -66,7 +69,8 @@ export function App() {
     void sidebarTab.value;
     void resultPanelTab.value;
     void layoutSizes.value;
-    persistSession();
+    const id = setTimeout(persistSession, 400);
+    return () => clearTimeout(id);
   });
   useEffect(() => {
     const h = () => persistSession();

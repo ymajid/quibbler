@@ -41,6 +41,11 @@ export function ChartPanel({ data, config, needsRender, onUpdateConfig, onRender
   const chartRef = useRef<HTMLDivElement>(null);
   const instanceRef = useRef<ECharts | null>(null);
   const [rendered, setRendered] = useState(false);
+  // Lightweight zoom state for the wheel/pinch handler, so it never calls the
+  // expensive getOption() (which deep-clones all series data) on every tick.
+  const zoomRef = useRef({ start: 0, end: 100 });
+  const xLenRef = useRef(0);
+  const hasZoomRef = useRef(false);
 
   // Init chart instance — re-create when theme changes
   useEffect(() => {
@@ -72,23 +77,25 @@ export function ChartPanel({ data, config, needsRender, onUpdateConfig, onRender
       inst.setOption({ legend: { selected: target } });
     });
 
+    // Keep the zoom ref in sync when the user drags the slider.
+    inst.on('datazoom', (p: any) => {
+      const b = p.batch ? p.batch[0] : p;
+      if (b && typeof b.start === 'number' && typeof b.end === 'number') {
+        zoomRef.current = { start: b.start, end: b.end };
+      }
+    });
+
     // Wheel + trackpad-pinch zoom, centered on the cursor. We handle this
     // ourselves (rather than ECharts' zoomOnMouseWheel) because a Mac pinch is a
     // ctrl+wheel event that the browser would otherwise consume as page-zoom;
     // preventDefault here keeps the gesture on the chart.
     const onWheel = (e: WheelEvent) => {
       const chart = instanceRef.current;
-      if (!chart) return;
-      const opt: any = chart.getOption();
-      const zooms = opt.dataZoom;
-      if (!zooms || !zooms.length) return; // pie/other — no zoom axis
+      if (!chart || !hasZoomRef.current) return; // pie/other — no zoom axis
       e.preventDefault();
-      const inside = zooms.find((d: any) => d.type === 'inside') || zooms[0];
-      const start = inside.start ?? 0;
-      const end = inside.end ?? 100;
+      const { start, end } = zoomRef.current;
       const span = Math.max(0.5, end - start);
-      const xData = opt.xAxis?.[0]?.data;
-      const len = Array.isArray(xData) ? xData.length : 0;
+      const len = xLenRef.current;
       const rect = chartRef.current!.getBoundingClientRect();
       const px = e.clientX - rect.left;
       const py = e.clientY - rect.top;
@@ -108,6 +115,7 @@ export function ChartPanel({ data, config, needsRender, onUpdateConfig, onRender
       if (newEnd > 100) { newStart -= (newEnd - 100); newEnd = 100; }
       newStart = Math.max(0, newStart);
       newEnd = Math.min(100, newEnd);
+      zoomRef.current = { start: newStart, end: newEnd };
       chart.dispatchAction({ type: 'dataZoom', start: newStart, end: newEnd });
     };
     chartRef.current.addEventListener('wheel', onWheel, { passive: false });
@@ -129,6 +137,10 @@ export function ChartPanel({ data, config, needsRender, onUpdateConfig, onRender
     if (!inst || !data) return;
     const option = buildChartOption(config, data, theme.value === 'dark');
     if (!option) return;
+    // Cache what the wheel handler needs (no getOption() on the hot path).
+    hasZoomRef.current = !!(option.dataZoom && option.dataZoom.length);
+    xLenRef.current = option.xAxis?.[0]?.data?.length ?? 0;
+    zoomRef.current = { start: 0, end: 100 };  // notMerge below resets the zoom
     // notMerge: a config change fully replaces the chart (and resets zoom) —
     // this is also what the Reset button relies on to "zoom out + re-preset".
     inst.setOption(option, true);

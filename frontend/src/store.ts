@@ -236,7 +236,9 @@ export const lastTiming = signal<QueryTiming | null>(null);
 export interface ResultSnapshot { result: QueryResult; error: string | null; timing: QueryTiming | null; text: string; ts: string; sig: string }
 export const resultHistory = signal<ResultSnapshot[]>([]);
 export const resultHistoryIndex = signal(0);  // 0 = latest; higher = older
-const MAX_RESULT_HISTORY = 25;
+// Snapshots hold references to full result objects (a table can be large), so
+// keep this modest to bound memory — old results beyond it are dropped/GC'd.
+const MAX_RESULT_HISTORY = 15;
 
 function resultSig(result: QueryResult, text: string): string {
   const rc = result?.type === 'table' ? (result as any).rowCount

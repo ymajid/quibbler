@@ -67,20 +67,34 @@ export function buildChartOption(config: ChartConfig, data: any, isDark: boolean
     ? { text: config.title, left: 'center' as const, top: 8, textStyle: { color: ink.primary, fontSize: 14, fontWeight: 600, fontFamily: FONT } }
     : undefined;
 
-  // Rotate + thin labels once the x-axis gets crowded so they stay legible.
-  // `hideOverlap` drops any that still collide; `containLabel` reserves room.
-  const rotateFor = (n: number) => (n > 60 ? 45 : n > 24 ? 30 : 0);
-  const catAxis = (categories: any[]) => ({
-    type: 'category' as const,
-    data: categories,
-    boundaryGap: true,
-    axisLabel: {
-      color: ink.muted, fontSize: 11, fontFamily: FONT, margin: 12,
-      hideOverlap: true, interval: 'auto' as const, rotate: rotateFor(categories.length),
-    },
-    axisTick: { show: false },
-    axisLine: { lineStyle: { color: ink.baseline, width: 1 } },
-  });
+  // On a dense x-axis, show ~a target number of evenly-spaced labels and skip the
+  // rest (the axis is ordered, so intermediate labels are redundant) rather than
+  // clobbering every value together. `interval` is a category-axis skip count
+  // (0 = show all); we aim for fewer labels when they're long. `hideOverlap`
+  // catches any residual collision; long labels also rotate to fit.
+  const catAxis = (categories: any[]) => {
+    const n = categories.length;
+    let maxLen = 0;
+    const sample = Math.min(n, 500);   // labels are ~uniform length; sampling is enough
+    for (let i = 0; i < sample; i++) {
+      const l = String(categories[i] ?? '').length;
+      if (l > maxLen) maxLen = l;
+    }
+    const target = maxLen > 12 ? 8 : maxLen > 7 ? 12 : 18;
+    const interval = n > target ? Math.ceil(n / target) - 1 : 0;
+    const rotate = (maxLen > 10 && n > target) ? 30 : 0;
+    return {
+      type: 'category' as const,
+      data: categories,
+      boundaryGap: true,
+      axisLabel: {
+        color: ink.muted, fontSize: 11, fontFamily: FONT, margin: 12,
+        hideOverlap: true, interval, rotate,
+      },
+      axisTick: { show: false },
+      axisLine: { lineStyle: { color: ink.baseline, width: 1 } },
+    };
+  };
   const valAxis = (scale: boolean) => ({
     type: 'value' as const,
     scale,

@@ -26,8 +26,10 @@ $dirs = @(
 )
 $files = @(Get-ChildItem -Recurse -Filter *.java -Path $dirs | ForEach-Object { $_.FullName })
 $files += (Resolve-Path "java\src\main\java\com\mercury\DevServer.java").Path
-($files | ForEach-Object { '"' + $_ + '"' }) | Set-Content -Encoding ascii build\sources.txt
-javac -d build\classes "@build\sources.txt"
+# Pass the files directly (splat), NOT via a javac @argfile: an @argfile treats
+# backslashes as escape characters, which mangles Windows absolute paths
+# (D:\a\... -> D:a...). PowerShell splatting quotes each path correctly.
+javac -d build\classes @files
 if ($LASTEXITCODE -ne 0) { throw "javac failed" }
 
 Write-Host "==> Embedding frontend into the jar"

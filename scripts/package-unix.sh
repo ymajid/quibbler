@@ -9,6 +9,13 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 VERSION="${1:-0.1.0}"
+# jpackage (notably the macOS bundler) rejects a version whose first component is
+# 0. The bundle's internal version is cosmetic, so bump a leading 0 major to 1.
+JPKG_VER="$VERSION"
+case "$JPKG_VER" in
+  0.*) JPKG_VER="1.${JPKG_VER#0.}" ;;
+  0)   JPKG_VER="1.0.0" ;;
+esac
 
 command -v jpackage >/dev/null || { echo "jpackage not found — install a JDK 17+ (https://adoptium.net)"; exit 1; }
 [ -f dist/mercury.jar ] || { echo "dist/mercury.jar not found — run scripts/build.sh first"; exit 1; }
@@ -24,7 +31,7 @@ echo "==> Running jpackage (app-image, bundled runtime)"
 jpackage \
   --type app-image \
   --name mercury \
-  --app-version "$VERSION" \
+  --app-version "$JPKG_VER" \
   --input "$IN" \
   --main-jar mercury.jar \
   --main-class com.mercury.DevServer \

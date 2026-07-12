@@ -8,13 +8,20 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
+# jpackage rejects a version whose first component is 0 on some platforms; the
+# bundle's internal version is cosmetic, so bump a leading 0 major to 1.
+$jpkgVer = $Version
+if ($jpkgVer -like '0.*') { $jpkgVer = '1.' + $jpkgVer.Substring(2) }
+elseif ($jpkgVer -eq '0') { $jpkgVer = '1.0.0' }
+
 if (-not (Get-Command jpackage -ErrorAction SilentlyContinue)) { throw "jpackage not found — install a JDK 17+ (https://adoptium.net)" }
 if (-not (Test-Path dist\mercury.jar)) { throw "dist\mercury.jar not found — run scripts\build.ps1 first" }
 
-$input = "build\jpackage-input"
-Remove-Item -Recurse -Force $input -ErrorAction SilentlyContinue
-New-Item -ItemType Directory -Force $input | Out-Null
-Copy-Item dist\mercury.jar "$input\mercury.jar"
+# NB: don't name this $input — that's a reserved PowerShell automatic variable.
+$inputDir = "build\jpackage-input"
+Remove-Item -Recurse -Force $inputDir -ErrorAction SilentlyContinue
+New-Item -ItemType Directory -Force $inputDir | Out-Null
+Copy-Item dist\mercury.jar "$inputDir\mercury.jar"
 
 $out = "dist\win"
 Remove-Item -Recurse -Force $out -ErrorAction SilentlyContinue
@@ -24,8 +31,8 @@ Write-Host "==> Running jpackage (app-image, bundled runtime)"
 jpackage `
   --type app-image `
   --name mercury `
-  --app-version $Version `
-  --input $input `
+  --app-version $jpkgVer `
+  --input $inputDir `
   --main-jar mercury.jar `
   --main-class com.mercury.DevServer `
   --dest $out `

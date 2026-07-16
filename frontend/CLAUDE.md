@@ -22,6 +22,18 @@ tabs, chart configs, `poppedCharts`, `resultHistory` (scroll-back), `cursorInfo`
 Dialogs are signal-driven and mounted once in `App.tsx` (`AlignDialog`,
 `ConnectionPalette`, `SaveDialog`, `PoppedCharts`, …).
 
+### Connection folders (`ConnectionsPanel.tsx`)
+
+Folders are *derived*, not stored: each connection carries a `group` path string
+(`"appA/envA"`), and `buildTree()` splits it into a nested tree at render time —
+there is no separate folder entity. So folder operations are just batch edits of
+`group`: drag a connection onto a folder header (or the "move to top level" drop
+zone) → `bridge.moveConnection(id, path)`; rename a folder → re-`moveConnection`
+every connection whose `group` starts with the old path onto the new prefix;
+delete a folder → `removeConnection` each connection under it. Renaming to a `''`
+path ungroups. The backend persists `group` on every one of these (see the
+password-safe note in the root README/backend).
+
 ### Session persistence (`persistSession`/`restoreSession`)
 
 The whole workspace is saved to `localStorage` (`mercury-session`) and restored
@@ -96,11 +108,16 @@ operations don't freeze the UI. Probe many connections with
 
 ## Performance & weight — don't regress these
 
-- **Monaco is imported from `monaco-editor/esm/vs/editor/editor.api`**, NOT the
-  full `monaco-editor` package. The full package pulls every basic-language
-  (abap/sql/…) and the json/ts/css/html language services we never use (~1 MB +
-  13 chunks). We only register a custom `q` Monarch grammar. Keep it on the API
-  entry.
+- **Monaco is imported from `monaco-editor/esm/vs/editor/edcore.main`** (see
+  `src/editor/setup.ts`), NOT the full `monaco-editor` package. `edcore.main`
+  bundles every *editor contribution* (suggest/autocomplete, hover, find, …) but
+  **no languages** — so the bundle stays slim while autocomplete works. The bare
+  `editor.api` entry has NO contributions, which silently breaks autocomplete;
+  import `edcore.main` for the runtime and keep the `import * as monaco` type
+  handle pointing at `editor.api`. We then add only the handful of
+  `basic-languages/*` contributions we actually offer (shell/python/sql/yaml) plus
+  our custom `q` Monarch grammar. Never import the full `monaco-editor` package —
+  it drags in json/ts/css/html services + every language (~1 MB, 13 chunks).
 - **`TableRenderer` memoizes filter+sort** (`useMemo`), because it re-renders on
   every scroll frame (scrollTop) — recomputing over 50k rows each time would jank
   scrolling. It also returns the same array (no copy) when unfiltered/unsorted.

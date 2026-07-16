@@ -58,8 +58,9 @@ Connections and history are saved under `~/.mercury` (`%USERPROFILE%\.mercury` o
   colorblind-safe palette. Hold-drag or pinch to zoom, click a series to isolate,
   crowded axes auto-rotate/downsample, and **pop a chart into its own OS window**
   (frozen to that result, unaffected by later queries).
-- **Connections** — groups/folders, TLS, fast dead-host detection, and a `Ctrl+P`
-  palette with live green/red status dots.
+- **Connections** — organise into folders (**drag a connection between folders**,
+  rename or delete folders inline), quick-connect from the toolbar, TLS, fast
+  dead-host detection, and a `Ctrl+P` palette with live green/red status dots.
 - **Schema explorer** — tables → columns with types; search by table, column, or
   datatype.
 - **Session restore** — reopens exactly as you left it: same tabs (including

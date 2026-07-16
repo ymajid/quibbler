@@ -161,6 +161,11 @@ export function removeConnection(connId: string): void {
   syncPost('/api/connections/delete', JSON.stringify({ id: connId }), 'application/json');
 }
 
+/** Move a connection to a different folder/group ('' = ungrouped). */
+export function moveConnection(connId: string, group: string): void {
+  syncPost('/api/connections/move', JSON.stringify({ id: connId, group }), 'application/json');
+}
+
 export function testConnection(host: string, port: number,
                                 username?: string, password?: string): { success: boolean; error?: string } {
   if (!useHttp) return JSON.parse(window.mercury!.testConnection(host, port, username || '', password || ''));

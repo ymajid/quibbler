@@ -67,11 +67,55 @@ export function ConnectionsPanel() {
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<string | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverGroup, setDragOverGroup] = useState<string | null>(null);
+  const [renamingGroup, setRenamingGroup] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
 
   const toggleGroup = (g: string) => {
     const next = new Set(expandedGroups);
     if (next.has(g)) next.delete(g); else next.add(g);
     setExpandedGroups(next);
+  };
+
+  // ---- Group / folder operations ----
+  const refresh = () => { connections.value = bridge.getConnections(); };
+
+  // Move a connection into a folder (empty string = ungrouped).
+  const moveTo = (connId: string, groupPath: string) => {
+    const c = connections.value.find(x => x.id === connId);
+    if (c && (c.group || '') === (groupPath || '')) return;   // already there — no-op
+    try { bridge.moveConnection(connId, groupPath); refresh(); }
+    catch (e: any) { addConsoleMessage('Move failed: ' + e.message, 'error'); }
+  };
+
+  // Connections directly in `path` or any of its subfolders.
+  const connsUnder = (path: string) =>
+    connections.value.filter(c => c.group === path || (c.group || '').startsWith(path + '/'));
+
+  const renameGroup = (oldPath: string, newName: string) => {
+    const clean = newName.trim().replace(/^\/+|\/+$/g, '');
+    setRenamingGroup(null);
+    if (!clean || clean === oldPath.split('/').pop()) return;
+    const slash = oldPath.lastIndexOf('/');
+    const newPath = slash >= 0 ? oldPath.slice(0, slash + 1) + clean : clean;
+    for (const c of connsUnder(oldPath)) {
+      const suffix = (c.group || '').slice(oldPath.length);   // '' or '/sub…'
+      try { bridge.moveConnection(c.id, newPath + suffix); } catch { /* keep going */ }
+    }
+    refresh();
+    addConsoleMessage(`Renamed folder ${oldPath} → ${newPath}`);
+  };
+
+  const deleteGroup = (path: string) => {
+    const affected = connsUnder(path);
+    if (!confirm(`Delete folder "${path}" and its ${affected.length} connection${affected.length !== 1 ? 's' : ''}?`)) return;
+    for (const c of affected) {
+      try { bridge.removeConnection(c.id); } catch { /* keep going */ }
+      if (activeConnectionId.value === c.id) activeConnectionId.value = null;
+    }
+    refresh();
+    addConsoleMessage(`Deleted folder ${path}`);
   };
 
   const updateHost = (val: string) => {
@@ -197,15 +241,20 @@ export function ConnectionsPanel() {
 
     return (
       <div key={c.id} onClick={() => handleSelect(c.id)}
+        draggable
+        onDragStart={(e) => { setDraggingId(c.id); if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'; }}
+        onDragEnd={() => { setDraggingId(null); setDragOverGroup(null); }}
         style={{
           padding: '6px 12px', cursor: 'pointer',
           background: isActive ? 'var(--bg-hover)' : 'transparent',
           borderLeft: isActive ? '3px solid var(--accent)' : '3px solid transparent',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           paddingLeft: (12 + depth * 14) + 'px',
+          opacity: draggingId === c.id ? 0.4 : 1,
         }}>
         <div>
           <div style={{ color: 'var(--text-bright)', fontWeight: isActive ? 'bold' : 'normal' }}>
+            <span title="Drag to a folder" style={{ cursor: 'grab', color: 'var(--text-dim)', marginRight: '3px', fontSize: '10px' }}>⠿</span>
             <span title={statusLabel} style={{ color: dotColor, marginRight: '4px' }}>{dot}</span>
             {c.name}
           </div>
@@ -229,19 +278,48 @@ export function ConnectionsPanel() {
 
   const renderNode = (node: TreeNode, depth: number) => {
     const isExpanded = expandedGroups.has(node.fullPath);
+    const isDropTarget = dragOverGroup === node.fullPath;
+    const isRenaming = renamingGroup === node.fullPath;
     return (
       <div key={node.fullPath || '__root__'}>
         {node.name && (
-          <div onClick={() => toggleGroup(node.fullPath)}
+          <div onClick={() => { if (!isRenaming) toggleGroup(node.fullPath); }}
+            onDragOver={(e) => { if (draggingId) { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'; setDragOverGroup(node.fullPath); } }}
+            onDragLeave={(e) => { if (dragOverGroup === node.fullPath && !e.currentTarget.contains(e.relatedTarget as Node)) setDragOverGroup(null); }}
+            onDrop={(e) => { e.preventDefault(); if (draggingId) moveTo(draggingId, node.fullPath); setDraggingId(null); setDragOverGroup(null); }}
             style={{
               padding: '4px 8px', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '11px',
               display: 'flex', alignItems: 'center', gap: '4px',
-              background: 'var(--bg-toolbar)', borderBottom: '1px solid #333',
+              background: isDropTarget ? 'var(--bg-hover)' : 'var(--bg-toolbar)',
+              borderBottom: '1px solid #333',
               borderTop: '1px solid #333', userSelect: 'none',
+              boxShadow: isDropTarget ? 'inset 0 0 0 1px var(--accent)' : 'none',
               paddingLeft: (8 + depth * 14) + 'px',
             }}>
             <span style={{ fontSize: '10px' }}>{isExpanded ? '▼' : '▶'}</span>
-            <span style={{ fontFamily: 'monospace' }}>{node.name}/</span>
+            {isRenaming ? (
+              <input value={renameValue} autoFocus
+                onClick={e => e.stopPropagation()}
+                onInput={e => setRenameValue((e.target as HTMLInputElement).value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') renameGroup(node.fullPath, renameValue);
+                  else if (e.key === 'Escape') setRenamingGroup(null);
+                }}
+                onBlur={() => renameGroup(node.fullPath, renameValue)}
+                style={{ flex: 1, background: 'var(--bg-input)', color: 'var(--text-bright)', border: '1px solid var(--accent)', padding: '1px 4px', borderRadius: '2px', fontSize: '11px', fontFamily: 'monospace', outline: 'none' }} />
+            ) : (
+              <>
+                <span style={{ fontFamily: 'monospace', flex: 1 }}>{node.name}/</span>
+                <button onClick={(e) => { e.stopPropagation(); setRenamingGroup(node.fullPath); setRenameValue(node.name); }}
+                  title="Rename folder" style={{ background: 'transparent', color: 'var(--text-dim)', border: 'none', cursor: 'pointer', fontSize: '11px', padding: '1px 3px' }}>
+                  ✎
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); deleteGroup(node.fullPath); }}
+                  title="Delete folder and its connections" style={{ background: 'transparent', color: 'var(--text-dim)', border: 'none', cursor: 'pointer', fontSize: '13px', padding: '1px 3px' }}>
+                  ×
+                </button>
+              </>
+            )}
           </div>
         )}
         {(isExpanded || !node.name) && (
@@ -254,8 +332,33 @@ export function ConnectionsPanel() {
     );
   };
 
+  // Whether the connection currently being dragged is inside a folder (so the
+  // top-level strip should invite an ungroup).
+  const draggingConn = draggingId ? connections.value.find(c => c.id === draggingId) : null;
+  const showUngroup = !!draggingConn && !!draggingConn.group;
+  const rootActive = dragOverGroup === '__root__';
+
   return (
     <div style={{ fontSize: '12px' }}>
+      {/* Always-present top-level drop target when any folder exists. Rendering it
+          unconditionally (not just while dragging) keeps the folder headers from
+          shifting the instant a drag starts — a mid-drag layout shift makes the
+          browser's drop hit-testing land on the wrong row. */}
+      {tree.children.length > 0 && (
+        <div
+          onDragOver={(e) => { if (draggingId) { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'; setDragOverGroup('__root__'); } }}
+          onDragLeave={(e) => { if (rootActive && !e.currentTarget.contains(e.relatedTarget as Node)) setDragOverGroup(null); }}
+          onDrop={(e) => { e.preventDefault(); if (draggingId) moveTo(draggingId, ''); setDraggingId(null); setDragOverGroup(null); }}
+          style={{
+            padding: '3px 12px', fontSize: '10px', userSelect: 'none',
+            color: showUngroup ? 'var(--text-secondary)' : 'var(--text-dim)',
+            borderBottom: '1px solid #333',
+            background: rootActive ? 'var(--bg-hover)' : 'transparent',
+            boxShadow: rootActive ? 'inset 0 0 0 1px var(--accent)' : 'none',
+          }}>
+          {showUngroup ? '⤴ Drop here to move to top level' : '⌂ Top level'}
+        </div>
+      )}
       {tree.conns.map(c => renderConn(c, 0))}
       {tree.children.map(ch => renderNode(ch, 0))}
       {connections.value.length === 0 && (

@@ -175,6 +175,8 @@ public class DevServer {
                         result = handleConnections(method, exchange); break;
                     case "/api/connections/delete":
                         result = handleDeleteConnection(exchange); break;
+                    case "/api/connections/move":
+                        result = handleMoveConnection(exchange); break;
                     case "/api/testConnection":
                         result = handleTestConnection(exchange); break;
                     case "/api/files":
@@ -279,7 +281,7 @@ public class DevServer {
 
                 String id = connectionManager.addConnection(name, host, port,
                         username, password, group, useTls);
-                configManager.saveConnections(connectionManager.getAllConnectionInfo());
+                configManager.saveConnections(connectionManager.getAllConnectionsForSave());
                 return "{\"id\":\"" + id + "\"}";
             }
             return typeMapper.toJson(connectionManager.getAllConnectionInfo());
@@ -288,8 +290,15 @@ public class DevServer {
         private String handleDeleteConnection(HttpExchange exchange) throws IOException {
             Map<String, Object> p = parseJson(readBody(exchange));
             connectionManager.removeConnection(str(p, "id", ""));
-            configManager.saveConnections(connectionManager.getAllConnectionInfo());
+            configManager.saveConnections(connectionManager.getAllConnectionsForSave());
             return "{\"ok\":true}";
+        }
+
+        private String handleMoveConnection(HttpExchange exchange) throws IOException {
+            Map<String, Object> p = parseJson(readBody(exchange));
+            boolean ok = connectionManager.setGroup(str(p, "id", ""), str(p, "group", null));
+            if (ok) configManager.saveConnections(connectionManager.getAllConnectionsForSave());
+            return "{\"ok\":" + ok + "}";
         }
 
         private String handleTestConnection(HttpExchange exchange) throws IOException {

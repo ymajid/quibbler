@@ -44,7 +44,7 @@ public class ConnectionManager {
         final int port;
         final String username;
         final String password;
-        final String group;
+        String group;   // mutable so connections can be moved between folders
         final boolean useTls;
         Object c;
 
@@ -140,6 +140,37 @@ public class ConnectionManager {
             result.add(info);
         }
         return result;
+    }
+
+    /**
+     * Full connection info INCLUDING secrets (password, useTls) — for persistence
+     * only. getAllConnectionInfo() omits these because it also feeds the API
+     * response; saving with it silently dropped passwords, so all save paths must
+     * use this method instead.
+     */
+    public List<Map<String, Object>> getAllConnectionsForSave() {
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (ManagedConnection mc : connections.values()) {
+            Map<String, Object> info = new LinkedHashMap<>();
+            info.put("id", mc.id);
+            info.put("name", mc.name);
+            info.put("host", mc.host);
+            info.put("port", mc.port);
+            info.put("username", mc.username != null ? mc.username : "");
+            info.put("password", mc.password != null ? mc.password : "");
+            info.put("group", mc.group != null ? mc.group : "");
+            info.put("useTls", mc.useTls);
+            result.add(info);
+        }
+        return result;
+    }
+
+    /** Move a connection to a different folder/group (null or "" = ungrouped). */
+    public boolean setGroup(String id, String group) {
+        ManagedConnection mc = connections.get(id);
+        if (mc == null) return false;
+        mc.group = (group == null || group.isEmpty()) ? null : group;
+        return true;
     }
 
     public void disconnect(String connId) {

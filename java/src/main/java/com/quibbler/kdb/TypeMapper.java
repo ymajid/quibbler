@@ -1,4 +1,4 @@
-package com.mercury.kdb;
+package com.quibbler.kdb;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;

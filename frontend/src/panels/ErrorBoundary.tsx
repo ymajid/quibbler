@@ -20,7 +20,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error) {
     this.setState({ error });
-    console.error('mercury panel error:', error);
+    console.error('quibbler panel error:', error);
   }
 
   render() {

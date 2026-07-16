@@ -4,7 +4,7 @@
 # jpackage (JDK 17+) and a prior build.
 #   scripts/build.sh
 #   scripts/package-unix.sh 0.1.0
-# Output: dist/app/  (macOS: mercury.app · Linux: mercury/ with bin/mercury)
+# Output: dist/app/  (macOS: quibbler.app · Linux: quibbler/ with bin/quibbler)
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
@@ -18,11 +18,11 @@ case "$JPKG_VER" in
 esac
 
 command -v jpackage >/dev/null || { echo "jpackage not found — install a JDK 17+ (https://adoptium.net)"; exit 1; }
-[ -f dist/mercury.jar ] || { echo "dist/mercury.jar not found — run scripts/build.sh first"; exit 1; }
+[ -f dist/quibbler.jar ] || { echo "dist/quibbler.jar not found — run scripts/build.sh first"; exit 1; }
 
 IN=build/jpackage-input
 rm -rf "$IN"; mkdir -p "$IN"
-cp dist/mercury.jar "$IN/mercury.jar"
+cp dist/quibbler.jar "$IN/quibbler.jar"
 
 OUT=dist/app
 rm -rf "$OUT"; mkdir -p "$OUT"
@@ -30,11 +30,11 @@ rm -rf "$OUT"; mkdir -p "$OUT"
 echo "==> Running jpackage (app-image, bundled runtime)"
 jpackage \
   --type app-image \
-  --name mercury \
+  --name quibbler \
   --app-version "$JPKG_VER" \
   --input "$IN" \
-  --main-jar mercury.jar \
-  --main-class com.mercury.DevServer \
+  --main-jar quibbler.jar \
+  --main-class com.quibbler.DevServer \
   --dest "$OUT" \
   --java-options "-Xmx1g"
 

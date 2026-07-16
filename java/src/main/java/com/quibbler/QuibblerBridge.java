@@ -1,10 +1,10 @@
-package com.mercury;
+package com.quibbler;
 
-import com.mercury.kdb.ConnectionManager;
-import com.mercury.kdb.QueryExecutor;
-import com.mercury.kdb.TypeMapper;
-import com.mercury.config.ConfigManager;
-import com.mercury.files.FileBrowser;
+import com.quibbler.kdb.ConnectionManager;
+import com.quibbler.kdb.QueryExecutor;
+import com.quibbler.kdb.TypeMapper;
+import com.quibbler.config.ConfigManager;
+import com.quibbler.files.FileBrowser;
 
 import org.cef.callback.CefV8Handler;
 import org.cef.V8Value;
@@ -16,19 +16,19 @@ import java.util.Map;
 /**
  * V8 handler that exposes Java backend methods to the JavaScript frontend.
  *
- * Each method maps to a callable function on the `window.mercury` object:
+ * Each method maps to a callable function on the `window.quibbler` object:
  *
- *   window.mercury.query(connId, queryText)  → JSON string result
- *   window.mercury.getConnections()          → JSON array of connections
- *   window.mercury.addConnection(name, host, port)
- *   window.mercury.removeConnection(connId)
- *   window.mercury.testConnection(host, port) → JSON { success, error }
- *   window.mercury.listFiles(path)           → JSON array of file entries
- *   window.mercury.readFile(path)            → file contents as string
- *   window.mercury.saveFile(path, content)
- *   window.mercury.getQueryHistory()         → JSON array of history entries
+ *   window.quibbler.query(connId, queryText)  → JSON string result
+ *   window.quibbler.getConnections()          → JSON array of connections
+ *   window.quibbler.addConnection(name, host, port)
+ *   window.quibbler.removeConnection(connId)
+ *   window.quibbler.testConnection(host, port) → JSON { success, error }
+ *   window.quibbler.listFiles(path)           → JSON array of file entries
+ *   window.quibbler.readFile(path)            → file contents as string
+ *   window.quibbler.saveFile(path, content)
+ *   window.quibbler.getQueryHistory()         → JSON array of history entries
  */
-public class MercuryBridge implements CefV8Handler {
+public class QuibblerBridge implements CefV8Handler {
 
     private final ConnectionManager connectionManager;
     private final QueryExecutor queryExecutor;
@@ -36,7 +36,7 @@ public class MercuryBridge implements CefV8Handler {
     private final ConfigManager configManager;
     private final FileBrowser fileBrowser;
 
-    public MercuryBridge(ConnectionManager connectionManager,
+    public QuibblerBridge(ConnectionManager connectionManager,
                           QueryExecutor queryExecutor,
                           TypeMapper typeMapper,
                           ConfigManager configManager,

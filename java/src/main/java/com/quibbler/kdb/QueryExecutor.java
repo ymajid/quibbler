@@ -1,4 +1,4 @@
-package com.mercury.kdb;
+package com.quibbler.kdb;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -17,12 +17,12 @@ public class QueryExecutor {
     private final TypeMapper typeMapper;
     private volatile String currentQueryConnId;  // set during active query, null otherwise
 
-    /** Query timeout in seconds; 0 = no timeout. Configurable via -Dmercury.queryTimeout=N */
+    /** Query timeout in seconds; 0 = no timeout. Configurable via -Dquibbler.queryTimeout=N */
     private final int queryTimeoutSeconds;
 
     // Single-thread executor for query timeout enforcement
     private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "mercury-query");
+        Thread t = new Thread(r, "quibbler-query");
         t.setDaemon(true);
         return t;
     });
@@ -31,7 +31,7 @@ public class QueryExecutor {
         this.connectionManager = connectionManager;
         this.typeMapper = typeMapper;
         int timeout = 0;
-        try { timeout = Integer.parseInt(System.getProperty("mercury.queryTimeout", "0")); } catch (NumberFormatException ignored) {}
+        try { timeout = Integer.parseInt(System.getProperty("quibbler.queryTimeout", "0")); } catch (NumberFormatException ignored) {}
         this.queryTimeoutSeconds = timeout;
     }
 

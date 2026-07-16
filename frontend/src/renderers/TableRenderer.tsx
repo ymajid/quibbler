@@ -183,7 +183,7 @@ export function TableRenderer({ result }: Props) {
             <span style={{ cursor: 'pointer' }} onClick={() => { setCsvFilename('query_result.csv'); setCsvPrompt(true); }}
               title="Download as CSV">📥 CSV</span>
           )}
-          <span style={{ cursor: 'pointer' }} onClick={() => window.dispatchEvent(new CustomEvent('mercury:autoSize'))}
+          <span style={{ cursor: 'pointer' }} onClick={() => window.dispatchEvent(new CustomEvent('quibbler:autoSize'))}
             title="Auto-size columns (Ctrl+J)">↕ Fit</span>
         </div>
       </div>

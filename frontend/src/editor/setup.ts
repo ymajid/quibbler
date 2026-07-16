@@ -4,7 +4,7 @@
 // the API surface with no contributions, which silently disabled autocomplete.
 import 'monaco-editor/esm/vs/editor/edcore.main';
 // A few extra languages so scratch scripts (bash/python/sql/yaml) are syntax
-// highlighted. They never execute — mercury only runs q — but you can clearly
+// highlighted. They never execute — quibbler only runs q — but you can clearly
 // see it's a shell script etc. These are lightweight Monarch grammars only.
 import 'monaco-editor/esm/vs/basic-languages/shell/shell.contribution';
 import 'monaco-editor/esm/vs/basic-languages/python/python.contribution';
@@ -54,7 +54,7 @@ monaco.languages.registerCompletionItemProvider('q', qCompletionProvider);
 
 // ---- Theme ----
 // Dark theme (based on vs-dark)
-monaco.editor.defineTheme('mercury-dark', {
+monaco.editor.defineTheme('quibbler-dark', {
   base: 'vs-dark',
   inherit: true,
   rules: [
@@ -83,7 +83,7 @@ monaco.editor.defineTheme('mercury-dark', {
 });
 
 // Light theme (based on vs)
-monaco.editor.defineTheme('mercury-light', {
+monaco.editor.defineTheme('quibbler-light', {
   base: 'vs',
   inherit: true,
   rules: [
@@ -112,7 +112,7 @@ monaco.editor.defineTheme('mercury-light', {
 });
 
 export function getEditorTheme(appTheme: 'light' | 'dark'): string {
-  return appTheme === 'light' ? 'mercury-light' : 'mercury-dark';
+  return appTheme === 'light' ? 'quibbler-light' : 'quibbler-dark';
 }
 
 export interface EditorInstance {
@@ -125,9 +125,9 @@ export interface EditorInstance {
 
 export function createEditor(container: HTMLElement): EditorInstance {
   const editor = monaco.editor.create(container, {
-    value: '// mercury — kdb+/q IDE\n\n',
+    value: '// quibbler — kdb+/q IDE\n\n',
     language: 'q',
-    theme: 'mercury-dark',
+    theme: 'quibbler-dark',
     fontSize: 14,
     fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Consolas, monospace",
     lineNumbers: 'on',

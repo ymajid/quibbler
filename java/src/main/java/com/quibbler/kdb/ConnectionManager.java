@@ -1,4 +1,4 @@
-package com.mercury.kdb;
+package com.quibbler.kdb;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

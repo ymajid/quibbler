@@ -1,10 +1,10 @@
-package com.mercury;
+package com.quibbler;
 
-import com.mercury.config.ConfigManager;
-import com.mercury.files.FileBrowser;
-import com.mercury.kdb.ConnectionManager;
-import com.mercury.kdb.QueryExecutor;
-import com.mercury.kdb.TypeMapper;
+import com.quibbler.config.ConfigManager;
+import com.quibbler.files.FileBrowser;
+import com.quibbler.kdb.ConnectionManager;
+import com.quibbler.kdb.QueryExecutor;
+import com.quibbler.kdb.TypeMapper;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -73,7 +73,7 @@ public class DevServer {
         // kdb+ c objects aren't thread-safe, so per-connection IPC is serialized in
         // QueryExecutor; connection tests use throwaway sockets and run freely.
         java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(16, r -> {
-            Thread t = new Thread(r, "mercury-http");
+            Thread t = new Thread(r, "quibbler-http");
             t.setDaemon(true);
             return t;
         });
@@ -82,7 +82,7 @@ public class DevServer {
 
         String url = "http://127.0.0.1:" + bound;
         System.out.println();
-        System.out.println("  mercury — kdb+/q IDE");
+        System.out.println("  quibbler — kdb+/q IDE");
         System.out.println("  Running at " + url);
         System.out.println("  Press Ctrl+C to stop.");
         System.out.println();
@@ -95,11 +95,11 @@ public class DevServer {
     /**
      * Open the app in Chrome's app-mode (a clean, chromeless window) when Chrome
      * is available, otherwise fall back to the system default browser. Set the
-     * MERCURY_NO_BROWSER environment variable to skip launching entirely.
+     * QUIBBLER_NO_BROWSER environment variable to skip launching entirely.
      */
     private static void openBrowser(String url) {
-        if (System.getenv("MERCURY_NO_BROWSER") != null) {
-            System.out.println("  MERCURY_NO_BROWSER set — open " + url + " yourself.");
+        if (System.getenv("QUIBBLER_NO_BROWSER") != null) {
+            System.out.println("  QUIBBLER_NO_BROWSER set — open " + url + " yourself.");
             return;
         }
         String os = System.getProperty("os.name", "").toLowerCase();

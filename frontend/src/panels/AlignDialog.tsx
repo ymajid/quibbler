@@ -4,7 +4,7 @@ import { alignDialog } from '../store';
 /**
  * Align-on-delimiter dialog (align.nvim style). Opened from the editor over a
  * multi-line selection; you pick the delimiter to align on and it pads each line
- * so that delimiter lands in the same column. Applied via the mercury:applyAlign
+ * so that delimiter lands in the same column. Applied via the quibbler:applyAlign
  * event, handled in EditorPanel.
  */
 const COMMON = [':', '/', ',', '|', '=', ';'];
@@ -23,7 +23,7 @@ export function AlignDialog() {
 
   const apply = () => {
     if (!delim) return;
-    window.dispatchEvent(new CustomEvent('mercury:applyAlign', {
+    window.dispatchEvent(new CustomEvent('quibbler:applyAlign', {
       detail: { startLine: req.startLine, endLine: req.endLine, delim, padAfter: spaceAfter ? 1 : 0 },
     }));
     alignDialog.value = null;

@@ -1,5 +1,5 @@
 /**
- * Shared UI Styles — mercury IDE
+ * Shared UI Styles — quibbler IDE
  *
  * Single source of truth for all reusable inline style objects used across
  * panel components.

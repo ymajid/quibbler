@@ -1,4 +1,4 @@
-# mercury frontend
+# quibbler frontend
 
 Preact + `@preact/signals` + Monaco Editor + ECharts, bundled by Vite. No React
 runtime (Vite aliases `react`→`preact/compat`). Split panes via `split.js`.
@@ -36,7 +36,7 @@ password-safe note in the root README/backend).
 
 ### Session persistence (`persistSession`/`restoreSession`)
 
-The whole workspace is saved to `localStorage` (`mercury-session`) and restored
+The whole workspace is saved to `localStorage` (`quibbler-session`) and restored
 so the app **reopens exactly as it closed** — open tabs *with unsaved content and
 dirty flags*, active tab + connection, sidebar/result selection, and split sizes.
 

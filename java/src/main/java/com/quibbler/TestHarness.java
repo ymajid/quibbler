@@ -1,6 +1,6 @@
-package com.mercury;
+package com.quibbler;
 
-import com.mercury.kdb.TypeMapper;
+import com.quibbler.kdb.TypeMapper;
 import com.kx.c;
 
 /**
@@ -8,8 +8,8 @@ import com.kx.c;
  * exercises all data types, and validates the TypeMapper output.
  *
  * Usage:
- *   javac -d out com/kx/c.java com/mercury/kdb/TypeMapper.java com/mercury/TestHarness.java
- *   java -cp out com.mercury.TestHarness
+ *   javac -d out com/kx/c.java com/quibbler/kdb/TypeMapper.java com/quibbler/TestHarness.java
+ *   java -cp out com.quibbler.TestHarness
  */
 public class TestHarness {
 
@@ -18,7 +18,7 @@ public class TestHarness {
     private static int failed = 0;
 
     public static void main(String[] args) throws Exception {
-        System.out.println("=== mercury E2E Test Harness ===\n");
+        System.out.println("=== quibbler E2E Test Harness ===\n");
 
         c conn = null;
         try {
@@ -77,7 +77,7 @@ public class TestHarness {
         System.out.println(json.substring(0, Math.min(400, json.length())) + "...");
 
         assertContains(json, "\"type\":\"dict\"", "outer dict type marker");
-        assertContains(json, "\"mercury\"", "string value in nested dict");
+        assertContains(json, "\"quibbler\"", "string value in nested dict");
         assertContains(json, "\"cpu\"", "cpu key in nested dict");
     }
 

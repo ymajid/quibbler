@@ -54,7 +54,7 @@ export function App() {
   useSignalEffect(() => {
     const t = theme.value;
     document.documentElement.setAttribute('data-theme', t);
-    try { localStorage.setItem('mercury-theme', t); } catch {}
+    try { localStorage.setItem('quibbler-theme', t); } catch {}
   });
 
   // Persist the full session whenever any captured piece of state changes,
@@ -151,8 +151,8 @@ export function App() {
   // Listen for layout update events (triggered after sidebar toggle)
   useEffect(() => {
     const handler = () => buildSplits();
-    window.addEventListener('mercury:layout', handler);
-    return () => window.removeEventListener('mercury:layout', handler);
+    window.addEventListener('quibbler:layout', handler);
+    return () => window.removeEventListener('quibbler:layout', handler);
   }, []);
 
   return (

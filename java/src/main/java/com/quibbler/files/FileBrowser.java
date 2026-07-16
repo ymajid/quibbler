@@ -1,4 +1,4 @@
-package com.mercury.files;
+package com.quibbler.files;
 
 import java.io.IOException;
 import java.nio.file.*;

@@ -1,4 +1,4 @@
-package com.mercury.config;
+package com.quibbler.config;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +18,22 @@ public class ConfigManager {
     private final Path configDir;
 
     public ConfigManager() {
-        this(Paths.get(System.getProperty("user.home"), ".mercury"));
+        this(defaultConfigDir());
+    }
+
+    /**
+     * ~/.quibbler, migrating a pre-rename ~/.mercury directory on first run so
+     * existing saved connections and query history carry over. If both exist we
+     * keep .quibbler untouched (already migrated / newer).
+     */
+    private static Path defaultConfigDir() {
+        String home = System.getProperty("user.home");
+        Path quibbler = Paths.get(home, ".quibbler");
+        Path legacy = Paths.get(home, ".mercury");
+        if (!Files.exists(quibbler) && Files.exists(legacy)) {
+            try { Files.move(legacy, quibbler); } catch (IOException ignored) { /* fall through — start fresh */ }
+        }
+        return quibbler;
     }
 
     public ConfigManager(Path configDir) {

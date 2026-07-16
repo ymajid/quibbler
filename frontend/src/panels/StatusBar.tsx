@@ -55,7 +55,7 @@ export function StatusBar() {
       {/* Editor language (highlighting only) — switch a scratch tab to shell/python/… */}
       <span title="Editor language — highlighting only, never executed" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
         <select value={lang}
-          onChange={e => window.dispatchEvent(new CustomEvent('mercury:setLanguage', { detail: { lang: (e.target as HTMLSelectElement).value } }))}
+          onChange={e => window.dispatchEvent(new CustomEvent('quibbler:setLanguage', { detail: { lang: (e.target as HTMLSelectElement).value } }))}
           style={{ background: 'rgba(255,255,255,0.12)', color: '#fff', border: 'none', borderRadius: '3px', fontSize: '11px', outline: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: '1px 2px' }}>
           {LANGUAGES.map(l => <option key={l} value={l} style={{ color: '#000' }}>{l}</option>)}
         </select>

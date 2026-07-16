@@ -24,7 +24,7 @@ export function HistoryPanel() {
 
   const handleClick = (query: string) => {
     navigator.clipboard?.writeText(query);
-    window.dispatchEvent(new CustomEvent('mercury:setQuery', { detail: { query } }));
+    window.dispatchEvent(new CustomEvent('quibbler:setQuery', { detail: { query } }));
   };
 
   return (

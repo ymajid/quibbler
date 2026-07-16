@@ -1,5 +1,5 @@
 /**
- * mercury — main entry point.
+ * quibbler — main entry point.
  *
  * Mounts the Preact application, initializes the Monaco editor,
  * and sets up the panel layout.

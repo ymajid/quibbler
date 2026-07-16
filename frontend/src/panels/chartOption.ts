@@ -1,5 +1,5 @@
 /**
- * Pure ECharts option builder for mercury charts.
+ * Pure ECharts option builder for quibbler charts.
  *
  * No DOM, no signals — just (config, table data, isDark) → ECharts option, so it
  * can be exercised headlessly (see __tests__/chartOption.render.ts). Styling

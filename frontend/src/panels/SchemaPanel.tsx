@@ -67,7 +67,7 @@ export function SchemaPanel() {
   };
 
   const insertAtCursor = (text: string) => {
-    window.dispatchEvent(new CustomEvent('mercury:insertText', { detail: { text } }));
+    window.dispatchEvent(new CustomEvent('quibbler:insertText', { detail: { text } }));
   };
 
   if (!schema) {

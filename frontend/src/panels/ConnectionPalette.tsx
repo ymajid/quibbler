@@ -17,15 +17,15 @@ export function ConnectionPalette() {
   // Listen for editor action and global shortcut
   useEffect(() => {
     const paletteHandler = () => open();
-    window.addEventListener('mercury:palette', paletteHandler);
-    return () => window.removeEventListener('mercury:palette', paletteHandler);
+    window.addEventListener('quibbler:palette', paletteHandler);
+    return () => window.removeEventListener('quibbler:palette', paletteHandler);
   }, []);
 
   // Also catch Ctrl+P at document level (when editor doesn't have focus)
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-        // Let Monaco handle it if the editor is focused (its action will dispatch mercury:palette)
+        // Let Monaco handle it if the editor is focused (its action will dispatch quibbler:palette)
         if (document.activeElement?.closest('.monaco-editor')) return;
         e.preventDefault();
         open();

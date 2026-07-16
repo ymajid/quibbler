@@ -1,7 +1,7 @@
 /**
  * Typed wrapper around the Java backend.
  *
- * JCEF mode: calls window.mercury.* (V8 bridge).
+ * JCEF mode: calls window.quibbler.* (V8 bridge).
  * HTTP mode:  calls DevServer REST API.
  *
  * Queries are sent as raw text in the HTTP body to avoid JSON escaping issues
@@ -65,7 +65,7 @@ export interface HistoryEntry {
 
 declare global {
   interface Window {
-    mercury?: {
+    quibbler?: {
       query(connId: string, queryText: string): string;
       getConnections(): string;
       addConnection(name: string, host: string, port: number, username: string, password: string, group?: string, useTls?: boolean): string;
@@ -80,7 +80,7 @@ declare global {
   }
 }
 
-const useHttp = !window.mercury;
+const useHttp = !window.quibbler;
 const BASE = 'http://127.0.0.1:8090';
 
 function syncPost(path: string, body?: string, contentType?: string): string {
@@ -107,7 +107,7 @@ export function queryAsync(connId: string, queryText: string): Promise<QueryResu
   return new Promise((resolve, reject) => {
     if (!useHttp) {
       try {
-        resolve(JSON.parse(window.mercury!.query(connId, queryText)));
+        resolve(JSON.parse(window.quibbler!.query(connId, queryText)));
       } catch (e: any) { reject(e); }
       return;
     }
@@ -129,7 +129,7 @@ export function queryAsync(connId: string, queryText: string): Promise<QueryResu
 /** Synchronous query — blocks UI but simpler for quick calls. */
 export function query(connId: string, queryText: string): QueryResult {
   if (!useHttp) {
-    return JSON.parse(window.mercury!.query(connId, queryText));
+    return JSON.parse(window.quibbler!.query(connId, queryText));
   }
   const raw = syncPost('/api/query?connId=' + encodeURIComponent(connId), queryText, 'text/plain');
   return JSON.parse(raw);
@@ -145,19 +145,19 @@ export function cancelQuery(): void {
 }
 
 export function getConnections(): Connection[] {
-  if (!useHttp) return JSON.parse(window.mercury!.getConnections());
+  if (!useHttp) return JSON.parse(window.quibbler!.getConnections());
   return JSON.parse(syncGet('/api/connections'));
 }
 
 export function addConnection(name: string, host: string, port: number,
                                username: string, password: string, group?: string, useTls?: boolean): { id: string } {
-  if (!useHttp) return JSON.parse(window.mercury!.addConnection(name, host, port, username, password, group, useTls));
+  if (!useHttp) return JSON.parse(window.quibbler!.addConnection(name, host, port, username, password, group, useTls));
   const body = JSON.stringify({ name, host, port, username, password, group: group || '', useTls: !!useTls });
   return JSON.parse(syncPost('/api/connections', body, 'application/json'));
 }
 
 export function removeConnection(connId: string): void {
-  if (!useHttp) { window.mercury!.removeConnection(connId); return; }
+  if (!useHttp) { window.quibbler!.removeConnection(connId); return; }
   syncPost('/api/connections/delete', JSON.stringify({ id: connId }), 'application/json');
 }
 
@@ -168,7 +168,7 @@ export function moveConnection(connId: string, group: string): void {
 
 export function testConnection(host: string, port: number,
                                 username?: string, password?: string): { success: boolean; error?: string } {
-  if (!useHttp) return JSON.parse(window.mercury!.testConnection(host, port, username || '', password || ''));
+  if (!useHttp) return JSON.parse(window.quibbler!.testConnection(host, port, username || '', password || ''));
   const body = JSON.stringify({ host, port, username: username || '', password: password || '' });
   return JSON.parse(syncPost('/api/testConnection', body, 'application/json'));
 }
@@ -182,7 +182,7 @@ export function testConnectionAsync(host: string, port: number,
                                      username?: string, password?: string): Promise<{ success: boolean; error?: string }> {
   return new Promise((resolve) => {
     if (!useHttp) {
-      try { resolve(JSON.parse(window.mercury!.testConnection(host, port, username || '', password || ''))); }
+      try { resolve(JSON.parse(window.quibbler!.testConnection(host, port, username || '', password || ''))); }
       catch (e: any) { resolve({ success: false, error: e?.message || String(e) }); }
       return;
     }
@@ -196,29 +196,29 @@ export function testConnectionAsync(host: string, port: number,
 }
 
 export function listFiles(dirPath: string): FileEntry[] | { error: string } {
-  if (!useHttp) return JSON.parse(window.mercury!.listFiles(dirPath));
+  if (!useHttp) return JSON.parse(window.quibbler!.listFiles(dirPath));
   return JSON.parse(syncPost('/api/files', JSON.stringify({ path: dirPath }), 'application/json'));
 }
 
 export function readFile(filePath: string): string {
-  if (!useHttp) return window.mercury!.readFile(filePath);
+  if (!useHttp) return window.quibbler!.readFile(filePath);
   const raw = syncPost('/api/readFile', JSON.stringify({ path: filePath }), 'application/json');
   const data = JSON.parse(raw);
   return data.content ?? raw;
 }
 
 export function saveFile(filePath: string, content: string): void {
-  if (!useHttp) { window.mercury!.saveFile(filePath, content); return; }
+  if (!useHttp) { window.quibbler!.saveFile(filePath, content); return; }
   syncPost('/api/saveFile', JSON.stringify({ path: filePath, content }), 'application/json');
 }
 
 export function getQueryHistory(): HistoryEntry[] {
-  if (!useHttp) return JSON.parse(window.mercury!.getQueryHistory());
+  if (!useHttp) return JSON.parse(window.quibbler!.getQueryHistory());
   return JSON.parse(syncGet('/api/history'));
 }
 
 export function getWorkspace(connId: string): WorkspaceContext {
-  if (!useHttp) return JSON.parse(window.mercury!.getWorkspace(connId));
+  if (!useHttp) return JSON.parse(window.quibbler!.getWorkspace(connId));
   return JSON.parse(syncGet('/api/workspace?connId=' + encodeURIComponent(connId)));
 }
 
@@ -227,7 +227,7 @@ export function getWorkspace(connId: string): WorkspaceContext {
 export function getWorkspaceAsync(connId: string): Promise<WorkspaceContext> {
   return new Promise((resolve, reject) => {
     if (!useHttp) {
-      try { resolve(JSON.parse(window.mercury!.getWorkspace(connId))); }
+      try { resolve(JSON.parse(window.quibbler!.getWorkspace(connId))); }
       catch (e: any) { reject(e); }
       return;
     }

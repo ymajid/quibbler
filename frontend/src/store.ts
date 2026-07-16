@@ -80,9 +80,9 @@ export function popOutChart(data: any, config: ChartConfig) {
   const id = _poppedSeq++;
   // Open synchronously, inside the originating click, so the popup blocker
   // treats it as user-initiated and allows it.
-  const win = window.open('', 'mercury-chart-' + id, 'width=920,height=640,menubar=no,toolbar=no,location=no,status=no');
+  const win = window.open('', 'quibbler-chart-' + id, 'width=920,height=640,menubar=no,toolbar=no,location=no,status=no');
   if (!win) {
-    addConsoleMessage('Pop-out blocked by the browser — allow pop-ups for mercury to detach a chart into its own window.', 'error');
+    addConsoleMessage('Pop-out blocked by the browser — allow pop-ups for quibbler to detach a chart into its own window.', 'error');
     return;
   }
   poppedCharts.value = [...poppedCharts.value, { id, data, config: { ...config }, win }];
@@ -183,7 +183,18 @@ export function renameTab(filePath: string, newPath: string, newName: string) {
 // result-panel selection, and the pane split sizes. Restore runs synchronously
 // at module load (see bottom of file) so state is in place before any component
 // mounts — persisting from an effect first would clobber the saved session.
-const SESSION_KEY = 'mercury-session';
+const SESSION_KEY = 'quibbler-session';
+
+// Read a persisted value, falling back to the pre-rename ('mercury-*') key so an
+// existing session, theme, and quick-connect history survive the rename to
+// Quibbler. Writes always target the new 'quibbler-*' key, so old keys fade out.
+function lsGet(key: string): string | null {
+  try {
+    const v = localStorage.getItem(key);
+    if (v !== null) return v;
+    return localStorage.getItem(key.replace(/^quibbler-/, 'mercury-'));
+  } catch { return null; }
+}
 
 export function persistSession() {
   try {
@@ -202,7 +213,7 @@ export function persistSession() {
 
 export function restoreSession(): boolean {
   try {
-    const raw = localStorage.getItem(SESSION_KEY);
+    const raw = lsGet(SESSION_KEY);
     if (!raw) return false;
     const data = JSON.parse(raw);
 
@@ -308,7 +319,7 @@ export const queryHistory = signal<HistoryEntry[]>([]);
 
 // ---- UI State ----
 export const theme = signal<'light' | 'dark'>(
-  (typeof localStorage !== 'undefined' && localStorage.getItem('mercury-theme') as 'light' | 'dark') || 'light'
+  (typeof localStorage !== 'undefined' && lsGet('quibbler-theme') as 'light' | 'dark') || 'light'
 );
 export const sidebarVisible = signal(true);
 export const sidebarTab = signal<'connections' | 'schema' | 'files'>('connections');
@@ -327,7 +338,7 @@ export const editorLanguage = signal<string>('q');
 // Recent quick-connect targets (host:port[:user], no password) for the toolbar
 // datalist, so you can re-pick a previous custom connection.
 function loadQuickConnect(): string[] {
-  try { return JSON.parse(localStorage.getItem('mercury-quickconnect') || '[]'); } catch { return []; }
+  try { return JSON.parse(lsGet('quibbler-quickconnect') || '[]'); } catch { return []; }
 }
 export const quickConnectHistory = signal<string[]>(loadQuickConnect());
 export function addQuickConnect(entry: string) {
@@ -335,7 +346,7 @@ export function addQuickConnect(entry: string) {
   if (!e) return;
   const next = [e, ...quickConnectHistory.value.filter(x => x !== e)].slice(0, 15);
   quickConnectHistory.value = next;
-  try { localStorage.setItem('mercury-quickconnect', JSON.stringify(next)); } catch {}
+  try { localStorage.setItem('quibbler-quickconnect', JSON.stringify(next)); } catch {}
 }
 
 
@@ -379,6 +390,6 @@ export function setConnections(list: Connection[]) {
 // than in a component effect) guarantees the workspace is in place before the
 // first render, avoiding the persist-before-restore race that dropped sessions.
 if (!restoreSession()) {
-  newTab(undefined, '// mercury — kdb+/q IDE\n\n');
+  newTab(undefined, '// quibbler — kdb+/q IDE\n\n');
 }
 

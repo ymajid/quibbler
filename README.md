@@ -1,4 +1,4 @@
-# mercury — kdb+/q IDE
+# quibbler — kdb+/q IDE
 
 A lightweight, fast desktop IDE for kdb+/q. A single self-contained server plus a
 Monaco-powered browser UI: multi-tab editing, q autocomplete, rich result tables,
@@ -7,7 +7,7 @@ no-Java Windows bundle) — no Electron, no install.
 
 ```
 ┌─ Toolbar ───────────────────────────────────────────┐
-│ ☰  ● trading/prod › ProdDB     ▶ Run      mercury   │
+│ ☰  ● trading/prod › ProdDB     ▶ Run      quibbler   │
 ├─ Sidebar ───┬─ Editor ──────────────┬─ Results ─────┤
 │ [Conns]     │ select price, size    │ price   size   │
 │ [Schema]    │ from trades           │ 100.5    500   │
@@ -24,24 +24,24 @@ The bundled versions include Java, so there's **nothing to install**:
 
 | Platform | Download | Java? | Run |
 |---|---|---|---|
-| **Windows** | `mercury-win-*.zip` (~80 MB) | bundled | unzip → double-click **`mercury.exe`** |
-| **macOS** | `mercury-mac-*.zip` (~80 MB) | bundled | unzip → open **`mercury.app`** * |
-| **Linux** | `mercury-linux-*.tar.gz` (~80 MB) | bundled | `tar xzf …` → `./mercury/bin/mercury` |
-| Any | `mercury-*.zip` (~3 MB) | needs [17+](https://adoptium.net/temurin/releases/?version=17) | unzip → `start-mercury.bat` / `./start-mercury.sh` |
+| **Windows** | `quibbler-win-*.zip` (~80 MB) | bundled | unzip → double-click **`quibbler.exe`** |
+| **macOS** | `quibbler-mac-*.zip` (~80 MB) | bundled | unzip → open **`quibbler.app`** * |
+| **Linux** | `quibbler-linux-*.tar.gz` (~80 MB) | bundled | `tar xzf …` → `./quibbler/bin/quibbler` |
+| Any | `quibbler-*.zip` (~3 MB) | needs [17+](https://adoptium.net/temurin/releases/?version=17) | unzip → `start-quibbler.bat` / `./start-quibbler.sh` |
 
-\* macOS build is unsigned, so the first time: **right-click `mercury.app` → Open**
-(or run `xattr -cr mercury.app`), then it opens normally.
+\* macOS build is unsigned, so the first time: **right-click `quibbler.app` → Open**
+(or run `xattr -cr quibbler.app`), then it opens normally.
 
 A window opens — click **+ New Connection**, enter your kdb+ `host:port`, then type a
 q expression and press **Ctrl+Enter**.
 
 - Google Chrome gives the cleanest window (app mode); any browser works — it falls
   back to your default automatically.
-- Different port: pass it as an argument (e.g. `start-mercury.bat 9000`). Skip
-  auto-opening a browser: set `MERCURY_NO_BROWSER=1`.
+- Different port: pass it as an argument (e.g. `start-quibbler.bat 9000`). Skip
+  auto-opening a browser: set `QUIBBLER_NO_BROWSER=1`.
 
-mercury is a **client** — point it at your own running q process, e.g. `q -p 5000`.
-Connections and history are saved under `~/.mercury` (`%USERPROFILE%\.mercury` on Windows).
+quibbler is a **client** — point it at your own running q process, e.g. `q -p 5000`.
+Connections and history are saved under `~/.quibbler` (`%USERPROFILE%\.quibbler` on Windows).
 
 ## Features
 
@@ -79,7 +79,7 @@ Connections and history are saved under `~/.mercury` (`%USERPROFILE%\.mercury` o
 ## Build from source
 
 You need **JDK 17+** and **Node 18+** on your PATH. The build produces one
-self-contained `dist/mercury.jar` (frontend embedded, zero runtime dependencies).
+self-contained `dist/quibbler.jar` (frontend embedded, zero runtime dependencies).
 
 ```bash
 # Windows
@@ -92,7 +92,7 @@ scripts/run.sh
 ```
 
 Prefer Maven? `cd frontend && npm run build && cd .. && mvn -q package` produces
-`target/mercury.jar`. Run any of them with `java -jar <path-to>.jar`.
+`target/quibbler.jar`. Run any of them with `java -jar <path-to>.jar`.
 
 Frontend-only dev with hot reload: `cd frontend && npm run dev`.
 
@@ -110,7 +110,7 @@ git push origin v0.1.0
 
 ```
 Browser (Chrome --app or default)
-  └─ mercury.jar  (Java, com.mercury.DevServer, ~1 file HTTP server)
+  └─ quibbler.jar  (Java, com.quibbler.DevServer, ~1 file HTTP server)
       ├─ Static UI served from the jar (Vite-built Preact app)
       ├─ REST API (/api/query, /api/connections, /api/workspace, …)
       └─ com.kx.c  IPC → your kdb+ process
@@ -119,7 +119,7 @@ Browser (Chrome --app or default)
 - **Frontend** — Preact + signals, Monaco Editor, ECharts, split.js (`frontend/`).
 - **Backend** — Java 17, `com.sun.net.httpserver`, `c.java` for kdb+ IPC. No
   external Java dependencies; no Electron, no LSP server.
-- A legacy JCEF embedded-browser mode (`MercuryApp`) exists but is not part of the
+- A legacy JCEF embedded-browser mode (`QuibblerApp`) exists but is not part of the
   packaged build.
 
 ## Contributing / notes

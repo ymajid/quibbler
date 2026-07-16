@@ -44,7 +44,7 @@ function PopoutWindow({ entry }: { entry: PoppedChart }) {
     const w = entry.win;
     if (!w) { closePoppedChart(entry.id); return; }
     const doc = w.document;
-    doc.title = (entry.config.title || 'mercury chart') + ' — detached';
+    doc.title = (entry.config.title || 'quibbler chart') + ' — detached';
     doc.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') || 'light');
     doc.head.innerHTML = '';
     doc.body.innerHTML = '';

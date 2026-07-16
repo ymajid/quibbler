@@ -11,7 +11,7 @@ export function Toolbar() {
   const [wordWrapEnabled, setWordWrapEnabled] = useState(false);
 
   const handleExecute = () => {
-    window.dispatchEvent(new CustomEvent('mercury:execute'));
+    window.dispatchEvent(new CustomEvent('quibbler:execute'));
   };
 
   // Quick connect: type host:port[:user:pass] and hit Enter — creates the
@@ -52,7 +52,7 @@ export function Toolbar() {
       background: 'var(--bg-toolbar)', borderBottom: '1px solid var(--border)', gap: '8px',
       userSelect: 'none', flexShrink: 0,
     }}>
-      <button onClick={() => { sidebarVisible.value = !sidebarVisible.value; window.dispatchEvent(new CustomEvent('mercury:layout')); }}
+      <button onClick={() => { sidebarVisible.value = !sidebarVisible.value; window.dispatchEvent(new CustomEvent('quibbler:layout')); }}
         title="Toggle Sidebar (Ctrl+Shift+F)"
         style={{ background: 'transparent', color: 'var(--text-bright)', border: 'none', padding: '4px 8px', borderRadius: '3px', cursor: 'pointer', fontSize: '14px' }}>
         ☰
@@ -94,7 +94,7 @@ export function Toolbar() {
         })}
       </select>
 
-      <input placeholder="host:port ⏎" list="mercury-quickconnect"
+      <input placeholder="host:port ⏎" list="quibbler-quickconnect"
         title="Quick connect — type host:port (optionally :user:pass) and press Enter"
         onKeyDown={(e) => {
           if (e.key !== 'Enter') return;
@@ -103,7 +103,7 @@ export function Toolbar() {
           el.value = '';
         }}
         style={{ background: 'var(--bg-input)', color: 'var(--text-bright)', border: '1px solid #555', padding: '3px 6px', borderRadius: '3px', fontSize: '12px', outline: 'none', width: '128px' }} />
-      <datalist id="mercury-quickconnect">
+      <datalist id="quibbler-quickconnect">
         {quickConnectHistory.value.map(e => <option key={e} value={e} />)}
       </datalist>
 
@@ -157,7 +157,7 @@ export function Toolbar() {
         {theme.value === 'light' ? '🌙' : '☀️'}
       </button>
 
-      <button onClick={() => { window.dispatchEvent(new CustomEvent('mercury:shortcuts')); }}
+      <button onClick={() => { window.dispatchEvent(new CustomEvent('quibbler:shortcuts')); }}
         title="Keyboard Shortcuts (?)"
         style={{
           background: 'transparent', color: 'var(--text-secondary)', border: 'none',
@@ -166,7 +166,7 @@ export function Toolbar() {
         ?
       </button>
 
-      <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>mercury</span>
+      <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>quibbler</span>
     </div>
   );
 }

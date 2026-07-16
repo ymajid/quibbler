@@ -1,10 +1,10 @@
-package com.mercury;
+package com.quibbler;
 
-import com.mercury.kdb.ConnectionManager;
-import com.mercury.kdb.QueryExecutor;
-import com.mercury.kdb.TypeMapper;
-import com.mercury.config.ConfigManager;
-import com.mercury.files.FileBrowser;
+import com.quibbler.kdb.ConnectionManager;
+import com.quibbler.kdb.QueryExecutor;
+import com.quibbler.kdb.TypeMapper;
+import com.quibbler.config.ConfigManager;
+import com.quibbler.files.FileBrowser;
 
 import org.cef.CefApp;
 import org.cef.CefClient;
@@ -29,24 +29,24 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Main entry point for mercury — a lightweight kdb+/q IDE.
+ * Main entry point for quibbler — a lightweight kdb+/q IDE.
  *
  * Uses JCEF (Java Chromium Embedded Framework) to embed a Chromium browser
  * hosting the Monaco Editor frontend. Communication between JS and Java
  * happens via JCEF's V8 bridge — no HTTP server or WebSockets.
  */
-public class MercuryApp {
+public class QuibblerApp {
 
-    private static final String APP_NAME = "mercury";
+    private static final String APP_NAME = "quibbler";
     private static final int WINDOW_WIDTH = 1400;
     private static final int WINDOW_HEIGHT = 900;
 
     // Default to Vite dev server in development; loads from classpath in production
     private static final boolean DEV_MODE = Boolean.parseBoolean(
-            System.getProperty("mercury.dev", "true"));
+            System.getProperty("quibbler.dev", "true"));
 
     private static final String DEV_URL = "http://localhost:5173";
-    private static final String PROD_URL = "http://mercury/frontend/index.html";
+    private static final String PROD_URL = "http://quibbler/frontend/index.html";
 
     private final ConnectionManager connectionManager;
     private final QueryExecutor queryExecutor;
@@ -58,7 +58,7 @@ public class MercuryApp {
     private CefClient cefClient;
     private CefBrowser cefBrowser;
 
-    public MercuryApp() {
+    public QuibblerApp() {
         this.connectionManager = new ConnectionManager();
         this.typeMapper = new TypeMapper();
         this.queryExecutor = new QueryExecutor(connectionManager, typeMapper);
@@ -95,7 +95,7 @@ public class MercuryApp {
 
         // Optional: configure cache path
         String userHome = System.getProperty("user.home");
-        settings.cache_path = Paths.get(userHome, ".mercury", "cache").toString();
+        settings.cache_path = Paths.get(userHome, ".quibbler", "cache").toString();
 
         // Initialize CEF
         cefApp = CefApp.getInstance(settings);
@@ -122,16 +122,16 @@ public class MercuryApp {
     private void createBrowser(JFrame frame) {
         cefClient = cefApp.createClient();
 
-        // Register the V8 bridge: this injects window.mercury into the JS context
+        // Register the V8 bridge: this injects window.quibbler into the JS context
         cefClient.addRenderProcessHandler(new CefRenderProcessHandlerAdapter() {
             @Override
             public void onContextCreated(CefBrowser browser, CefFrame frame,
                                           CefV8Context context) {
-                MercuryBridge bridge = new MercuryBridge(
+                QuibblerBridge bridge = new QuibblerBridge(
                         connectionManager, queryExecutor, typeMapper,
                         configManager, fileBrowser);
                 int mask = CefV8Value.V8_PROPERTY_ATTRIBUTE_NONE;
-                context.getGlobal().setValue("mercury",
+                context.getGlobal().setValue("quibbler",
                         CefV8Value.createObject(bridge), mask);
             }
         });
@@ -165,17 +165,17 @@ public class MercuryApp {
         // Ensure config directory exists
         try {
             Files.createDirectories(Paths.get(
-                System.getProperty("user.home"), ".mercury"));
+                System.getProperty("user.home"), ".quibbler"));
             Files.createDirectories(Paths.get(
-                System.getProperty("user.home"), ".mercury", "cache"));
+                System.getProperty("user.home"), ".quibbler", "cache"));
         } catch (IOException e) {
-            System.err.println("Warning: could not create ~/.mercury directory: "
+            System.err.println("Warning: could not create ~/.quibbler directory: "
                     + e.getMessage());
         }
 
         // Start on the AWT event thread
         SwingUtilities.invokeLater(() -> {
-            MercuryApp app = new MercuryApp();
+            QuibblerApp app = new QuibblerApp();
             app.start();
         });
     }

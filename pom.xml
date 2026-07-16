@@ -4,26 +4,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.mercury</groupId>
-    <artifactId>mercury</artifactId>
+    <groupId>com.quibbler</groupId>
+    <artifactId>quibbler</artifactId>
     <version>0.1.0</version>
     <packaging>jar</packaging>
 
-    <name>mercury</name>
+    <name>quibbler</name>
     <description>A lightweight kdb+/q IDE — self-contained HTTP server + browser UI</description>
 
     <!--
       This builds the lightweight DevServer distribution: a single runnable jar
-      (com.mercury.DevServer) with the built frontend embedded, and zero external
+      (com.quibbler.DevServer) with the built frontend embedded, and zero external
       dependencies. Build the frontend first so its output is bundled:
 
         cd frontend && npm ci && npm run build && cd ..
         mvn -q package
-        java -jar target/mercury.jar
+        java -jar target/quibbler.jar
 
       The scripts/build.* helpers do both steps for you and need only a JDK +
-      Node (no Maven). The legacy JCEF embedded-browser mode (MercuryApp /
-      MercuryBridge) is excluded from this build — it requires the JCEF native
+      Node (no Maven). The legacy JCEF embedded-browser mode (QuibblerApp /
+      QuibblerBridge) is excluded from this build — it requires the JCEF native
       libraries and is not part of the packaged app.
     -->
 
@@ -33,7 +33,7 @@
     </properties>
 
     <build>
-        <finalName>mercury</finalName>
+        <finalName>quibbler</finalName>
         <sourceDirectory>java/src/main/java</sourceDirectory>
 
         <!-- Embed the built frontend at /frontend inside the jar. -->
@@ -52,9 +52,9 @@
                 <configuration>
                     <!-- JCEF-only sources; not part of the DevServer distribution. -->
                     <excludes>
-                        <exclude>com/mercury/MercuryApp.java</exclude>
-                        <exclude>com/mercury/MercuryBridge.java</exclude>
-                        <exclude>com/mercury/TestHarness.java</exclude>
+                        <exclude>com/quibbler/QuibblerApp.java</exclude>
+                        <exclude>com/quibbler/QuibblerBridge.java</exclude>
+                        <exclude>com/quibbler/TestHarness.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -66,7 +66,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.mercury.DevServer</mainClass>
+                            <mainClass>com.quibbler.DevServer</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

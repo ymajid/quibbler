@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build (if needed) and run mercury from a source checkout.
+# Build (if needed) and run quibbler from a source checkout.
 #   scripts/run.sh            run, building the jar first if it's missing
 #   scripts/run.sh --rebuild  force a fresh build
 #   scripts/run.sh 9000       run on a specific port
@@ -16,7 +16,7 @@ if ! java -version >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ "${1:-}" = "--rebuild" ]; then shift; rm -f dist/mercury.jar; fi
-if [ ! -f dist/mercury.jar ]; then "$ROOT/scripts/build.sh"; fi
+if [ "${1:-}" = "--rebuild" ]; then shift; rm -f dist/quibbler.jar; fi
+if [ ! -f dist/quibbler.jar ]; then "$ROOT/scripts/build.sh"; fi
 
-exec java -jar dist/mercury.jar "$@"
+exec java -jar dist/quibbler.jar "$@"

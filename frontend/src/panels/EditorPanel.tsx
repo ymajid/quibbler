@@ -207,7 +207,7 @@ export function EditorPanel() {
     };
 
     editor.monacoEditor.addAction({
-      id: 'mercury-execute',
+      id: 'quibbler-execute',
       label: 'Execute Query',
       keybindings: [
         monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
@@ -217,28 +217,28 @@ export function EditorPanel() {
     });
 
     editor.monacoEditor.addAction({
-      id: 'mercury-save',
+      id: 'quibbler-save',
       label: 'Save File',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
       run: () => { handleSave(); },
     });
 
     editor.monacoEditor.addAction({
-      id: 'mercury-new-tab',
+      id: 'quibbler-new-tab',
       label: 'New Tab',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyN],
       run: () => { handleNewTab(); },
     });
 
     editor.monacoEditor.addAction({
-      id: 'mercury-open-file',
+      id: 'quibbler-open-file',
       label: 'Open File…',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyO],
       run: () => { openDialogVisible.value = true; },
     });
 
     editor.monacoEditor.addAction({
-      id: 'mercury-close-tab',
+      id: 'quibbler-close-tab',
       label: 'Close Tab',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyW],
       run: () => {
@@ -248,7 +248,7 @@ export function EditorPanel() {
     });
 
     editor.monacoEditor.addAction({
-      id: 'mercury-wordwrap',
+      id: 'quibbler-wordwrap',
       label: 'Toggle Word Wrap',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyL],
       run: () => {
@@ -258,14 +258,14 @@ export function EditorPanel() {
     });
 
     editor.monacoEditor.addAction({
-      id: 'mercury-palette',
+      id: 'quibbler-palette',
       label: 'Switch Connection',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyP],
-      run: () => { window.dispatchEvent(new CustomEvent('mercury:palette')); },
+      run: () => { window.dispatchEvent(new CustomEvent('quibbler:palette')); },
     });
 
     editor.monacoEditor.addAction({
-      id: 'mercury-align',
+      id: 'quibbler-align',
       label: 'Align on delimiter…',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyA],
       contextMenuGroupId: 'modification',
@@ -352,17 +352,17 @@ export function EditorPanel() {
       editorLanguage.value = lang;
     };
 
-    window.addEventListener('mercury:execute', handleExecute);
-    window.addEventListener('mercury:insertText', handleInsertText);
-    window.addEventListener('mercury:setQuery', handleSetQuery);
-    window.addEventListener('mercury:applyAlign', handleApplyAlign);
-    window.addEventListener('mercury:setLanguage', handleSetLanguage);
+    window.addEventListener('quibbler:execute', handleExecute);
+    window.addEventListener('quibbler:insertText', handleInsertText);
+    window.addEventListener('quibbler:setQuery', handleSetQuery);
+    window.addEventListener('quibbler:applyAlign', handleApplyAlign);
+    window.addEventListener('quibbler:setLanguage', handleSetLanguage);
     return () => {
-      window.removeEventListener('mercury:execute', handleExecute);
-      window.removeEventListener('mercury:insertText', handleInsertText);
-      window.removeEventListener('mercury:setQuery', handleSetQuery);
-      window.removeEventListener('mercury:applyAlign', handleApplyAlign);
-      window.removeEventListener('mercury:setLanguage', handleSetLanguage);
+      window.removeEventListener('quibbler:execute', handleExecute);
+      window.removeEventListener('quibbler:insertText', handleInsertText);
+      window.removeEventListener('quibbler:setQuery', handleSetQuery);
+      window.removeEventListener('quibbler:applyAlign', handleApplyAlign);
+      window.removeEventListener('quibbler:setLanguage', handleSetLanguage);
       editor.dispose();
     };
   }, []);
@@ -475,8 +475,8 @@ export function EditorPanel() {
 
   // Expose openFile for the file browser
   useEffect(() => {
-    (window as any).__mercuryOpenFile = handleOpenFile;
-    return () => { delete (window as any).__mercuryOpenFile; };
+    (window as any).__quibblerOpenFile = handleOpenFile;
+    return () => { delete (window as any).__quibblerOpenFile; };
   }, []);
 
   const tab = activeEditorTab.value;

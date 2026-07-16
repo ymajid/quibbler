@@ -1,6 +1,6 @@
 # Third-party notices
 
-mercury is MIT-licensed (see `LICENSE`). It includes and depends on the
+quibbler is MIT-licensed (see `LICENSE`). It includes and depends on the
 following third-party software, each under its own license.
 
 ## Bundled in the repository / distribution
@@ -25,7 +25,7 @@ original copyright and license header.
 
 ## Runtime bundle (no-Java Windows download)
 
-The `mercury-win-*.zip` download bundles a Java runtime produced with
+The `quibbler-win-*.zip` download bundles a Java runtime produced with
 `jpackage` from an [Eclipse Temurin](https://adoptium.net) JDK (GPLv2 with the
-Classpath Exception). Only the runtime is redistributed; mercury itself remains
+Classpath Exception). Only the runtime is redistributed; quibbler itself remains
 MIT-licensed.

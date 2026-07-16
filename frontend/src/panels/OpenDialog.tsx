@@ -5,7 +5,7 @@ import * as bridge from '../bridge';
 /**
  * Open-file dialog (Ctrl+O). Browse directories, filter, and click a file to
  * open it in an editor tab. Opening is delegated to EditorPanel via the
- * window.__mercuryOpenFile hook it installs.
+ * window.__quibblerOpenFile hook it installs.
  */
 export function OpenDialog() {
   const [dir, setDir] = useState('');
@@ -46,7 +46,7 @@ export function OpenDialog() {
 
   const open = (entry: bridge.FileEntry) => {
     const path = dir ? dir + '/' + entry.name : entry.name;
-    (window as any).__mercuryOpenFile?.(path, entry.name);
+    (window as any).__quibblerOpenFile?.(path, entry.name);
     openDialogVisible.value = false;
   };
   const goUp = () => { if (!dir) return; const p = dir.split('/'); p.pop(); load(p.join('/')); };

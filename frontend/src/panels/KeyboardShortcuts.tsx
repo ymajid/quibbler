@@ -28,8 +28,8 @@ export function KeyboardShortcuts() {
   // Listen for custom event from toolbar "?" button
   useEffect(() => {
     const handler = () => setVisible(true);
-    window.addEventListener('mercury:shortcuts', handler);
-    return () => window.removeEventListener('mercury:shortcuts', handler);
+    window.addEventListener('quibbler:shortcuts', handler);
+    return () => window.removeEventListener('quibbler:shortcuts', handler);
   }, []);
 
   // Listen for keyboard triggers at document level

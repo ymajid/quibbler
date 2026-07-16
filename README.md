@@ -19,7 +19,7 @@ no-Java Windows bundle) — no Electron, no install.
 
 ## Download & run
 
-Grab the latest build from **[Releases](https://github.com/ymajid/mercury/releases/latest)**.
+Grab the latest build from **[Releases](https://github.com/ymajid/quibbler/releases/latest)**.
 The bundled versions include Java, so there's **nothing to install**:
 
 | Platform | Download | Java? | Run |

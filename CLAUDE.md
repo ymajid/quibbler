@@ -58,8 +58,8 @@ the build; the JCEF `QuibblerApp`/`QuibblerBridge` sources are excluded.
   existing users don't lose data and are NOT dead code: `ConfigManager` moves a
   pre-rename `~/.mercury` dir to `~/.quibbler` on first run, and `store.ts`'s
   `lsGet()` falls back to the old `mercury-*` localStorage keys (writes go to
-  `quibbler-*`). The GitHub repo is still `ymajid/mercury` (URLs deliberately
-  left un-renamed); only rename those if the repo itself is renamed.
+  `quibbler-*`). The GitHub repo has been renamed to `ymajid/quibbler` (GitHub
+  redirects the old `ymajid/mercury` URLs, so pre-rename links still resolve).
 
 ## Gotcha: `tsc --noEmit` has ~13 pre-existing errors
 
